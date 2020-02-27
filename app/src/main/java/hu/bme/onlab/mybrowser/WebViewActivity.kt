@@ -1,50 +1,41 @@
 package hu.bme.onlab.mybrowser
 
-import android.animation.ValueAnimator
-import android.app.PendingIntent.getActivity
 import android.content.Context
-import android.content.Intent
-import android.media.audiofx.BassBoost
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.Transformation
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_web_view.*
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
-
-
+import kotlinx.android.synthetic.main.toolbar.view.*
 
 
 class WebViewActivity : AppCompatActivity() {
         private var URL = "https://google.com"
         private var isAlreadyCreated = false
+        private val startPage="https://www.google.com/"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
 
 
-
-       // startLoaderAnimate()
+        setSupportActionBar(findViewById(R.id.toolbar))
+        // startLoaderAnimate()
 
         webView.settings.javaScriptEnabled =true
         webView.settings.setSupportZoom(false)
-
+        webView.setWebViewClient(WebViewClient())
+        webView.getSettings().setJavaScriptEnabled(true)
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true)
+        webView.getSettings().setPluginState(WebSettings.PluginState.ON)
+        //webView.getSettings().setMediaPlaybackRequiresUserGesture(false)
+        webView.setWebChromeClient(WebChromeClient())
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 //       endLoaderAnimate()
@@ -58,8 +49,44 @@ class WebViewActivity : AppCompatActivity() {
                     this@WebViewActivity)
             }
         }
+        webView.loadUrl(startPage)
+        toolbar.searchbutton.setOnClickListener(){
+            var url=toolbar.url.text.toString()
+            createurl(url)
+            webView.loadUrl(URL)
+            toolbar.url.setText(URL)
+        }
 
-        webView.loadUrl(URL)
+        toolbar.url.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                var url=toolbar.url.text.toString()
+                createurl(url)
+                webView.loadUrl(URL)
+                toolbar.url.setText(URL)
+                return@OnKeyListener true
+            }
+            false
+        })
+
+
+
+
+    }
+
+    private fun createurl(url: String) {
+        if(url.take(3)=="www" || url.take(3)=="WWW")
+            URL=("https://"+url)
+        else{
+            if(url.contains('.') && url.take(12)!="https://www.")
+                URL=("https://www."+url)
+            else{
+                if(url.take(12)=="https://www.")
+                    URL=url
+                else URL=("https://www.google.com/search?q="+url)
+            }
+
+        }
+
 
     }
 

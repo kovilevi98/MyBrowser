@@ -1,3 +1,4 @@
 <resources>
     <string name="a">MyBrowser</string>
+    <string name="url">URL</string>
 </resources>
