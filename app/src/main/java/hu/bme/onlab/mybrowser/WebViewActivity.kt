@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.webkit.*
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,7 @@ import kotlinx.android.synthetic.main.toolbar.view.*
 
 
 class WebViewActivity : AppCompatActivity() {
+        lateinit var fullscreenView: View
         private var URL = "https://google.com"
         private var isAlreadyCreated = false
         private val startPage="https://www.google.com/"
@@ -27,6 +29,8 @@ class WebViewActivity : AppCompatActivity() {
 
         setSupportActionBar(findViewById(R.id.toolbar))
         // startLoaderAnimate()
+        root_layout.visibility=View.VISIBLE
+        fullscreen.visibility=View.GONE
 
         webView.settings.javaScriptEnabled =true
         webView.settings.setSupportZoom(false)
@@ -47,6 +51,28 @@ class WebViewActivity : AppCompatActivity() {
                 showErrorDialog("Error",
                     "No internet connection. Please check your connection.",
                     this@WebViewActivity)
+            }
+        }
+        webView.webChromeClient = object: WebChromeClient(){
+            override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+                super.onShowCustomView(view, callback)
+
+                if(view is FrameLayout){
+                    fullscreenView = view
+                    fullscreen.addView(fullscreenView)
+                    fullscreen.visibility =View.VISIBLE
+                    root_layout.visibility = View.GONE
+                }
+
+
+
+            }
+
+            override fun onHideCustomView() {
+                super.onHideCustomView()
+                fullscreen.removeView(fullscreenView)
+                fullscreen.visibility = View.GONE
+                root_layout.visibility = View.VISIBLE
             }
         }
         webView.loadUrl(startPage)
