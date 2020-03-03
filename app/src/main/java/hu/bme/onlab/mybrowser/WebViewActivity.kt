@@ -216,7 +216,7 @@ class WebViewActivity : AppCompatActivity() {
 
     // actions on click menu items
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.action_cut -> {
+        R.id.tabs -> {
             // User chose the "Print" item
             Toast.makeText(this, "Action cut", Toast.LENGTH_LONG).show()
             true

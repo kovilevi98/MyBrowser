@@ -6,25 +6,39 @@
     >
 
     <item
-        android:id="@+id/action_cut"
-        android:title="Cut"
+        android:id="@+id/tabs"
+        android:title="@string/tabs"
         app:showAsAction="ifRoom|withText"
-        android:icon="@drawable/ic_star_border"
+        android:icon="@drawable/ic_filter_none"
         />
     <item
-        android:id="@+id/action_copy"
-        android:title="Copy"
-        app:showAsAction="always|withText"
+        android:id="@+id/star"
+        android:title="@string/star"
+        app:showAsAction="ifRoom|withText"
+        android:icon="@drawable/ic_star_border"
         />
 
     <item
         android:id="@+id/action_paste"
-        android:title="Paste"
+        android:title="@string/cookies"
         app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_ticket"
         />
     <item
         android:id="@+id/action_new"
-        android:title="New"
+        android:title="@string/history"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/Bookmark"
+        android:title="@string/bookmark"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/privatetab"
+        android:title="@string/private_tab"
         app:showAsAction="ifRoom"
         />
 
