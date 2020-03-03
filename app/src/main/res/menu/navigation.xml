@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/back"
+        android:icon="@drawable/ic_keyboard_arrow_left"
+        android:title="@string/back" />
+    <item
+        android:id="@+id/forward"
+        android:icon="@drawable/ic_keyboard_arrow_right"
+        android:title="@string/forward" />
+
+    <item
+        android:id="@+id/refresh"
+        android:icon="@drawable/ic_refresh"
+        android:title="@string/refresh" />
+</menu>

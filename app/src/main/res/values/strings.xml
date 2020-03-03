@@ -1,5 +1,8 @@
 <resources>
     <string name="a">MyBrowser</string>
     <string name="url">URL</string>
-    <string name="back">back</string>
+    <string name="back">Back</string>
+    <string name="forward">Forward</string>
+    <string name="refresh">Refresh</string>
+
 </resources>

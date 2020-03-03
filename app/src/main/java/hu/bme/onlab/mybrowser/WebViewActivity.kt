@@ -5,99 +5,105 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
-import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.webkit.*
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.baoyz.widget.PullRefreshLayout
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.toolbar.view.*
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-//import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
 class WebViewActivity : AppCompatActivity() {
-        lateinit var fullscreenView: View
-        private var URL = "https://google.com"
-        private var isAlreadyCreated = false
-        private val startPage="https://www.google.com/"
-  //      private var  bottomNavigation: BottomNavigationView? = null
+   /* var mDownPosX : Float=0.0f
+    var mDownPosY : Float=0.0f
+    var mUpPosX : Float=0.0f
+    var mUpPosY : Float=0.0f
+    private var MOVE_THRESHOLD_DP: Float = 0.toFloat()
+
+    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+        MOVE_THRESHOLD_DP = 20.0F * act.getResources().getDisplayMetrics().density;
+
+        if(event !=null){
+        when (event.getAction()) {
+            MotionEvent.ACTION_DOWN -> {
+                this.mDownPosX = event.getX()
+                this.mDownPosY = event.getY()
+            }
+            MotionEvent.ACTION_UP -> {
+                this.mUpPosX = event.getX()
+                this.mUpPosY = event.getY()
+                if (Math.abs(mUpPosX - this.mDownPosX) < MOVE_THRESHOLD_DP && Math.abs(mUpPosY - this.mDownPosY) < MOVE_THRESHOLD_DP) {
+                    //your click code here
+                }
+            }
+        }
+        return false
+        }
+    }*/
+
+
+    lateinit var fullscreenView: View
+    private var URL = "https://google.com"
+    private var isAlreadyCreated = false
+    private val startPage = "https://www.google.com/"
+    private var bottomNavigation: BottomNavigationView? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
 
-        //bottomNavigation = findViewById(R.id.bottom_navigation)
-        refresh()
 
         setSupportActionBar(findViewById(R.id.toolbar))
+        bottomNavigation = findViewById(R.id.navigation)
+
         // startLoaderAnimate()
-        root_layout.visibility=View.VISIBLE
-        fullscreen.visibility=View.GONE
+        root_layout.visibility = View.VISIBLE
+        fullscreen.visibility = View.GONE
 
-        //webView.settings.javaScriptEnabled =true
-        webView.settings.setSupportZoom(false)
-        webView.setWebViewClient(WebViewClient())
-        webView.getSettings().setJavaScriptEnabled(true)
-        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true)
-        webView.getSettings().setPluginState(WebSettings.PluginState.ON)
-        //webView.getSettings().setMediaPlaybackRequiresUserGesture(false)
-        webView.setWebChromeClient(WebChromeClient())
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                //       endLoaderAnimate()
-            }
+        refresh()
+        initWebView()
 
-            override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
-                super.onReceivedError(view, request, error)
-                //endLoaderAnimate()
-                showErrorDialog("Error",
-                    "No internet connection. Please check your connection.",
-                    this@WebViewActivity)
-            }
-        }
-        webView.webChromeClient = object: WebChromeClient(){
-            override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
-                super.onShowCustomView(view, callback)
-
-                if(view is FrameLayout){
-                    fullscreenView = view
-                    fullscreen.addView(fullscreenView)
-                    fullscreen.visibility =View.VISIBLE
-                    root_layout.visibility = View.GONE
-                }
-
-
-
-            }
-
-            override fun onHideCustomView() {
-                super.onHideCustomView()
-                fullscreen.removeView(fullscreenView)
-                fullscreen.visibility = View.GONE
-                root_layout.visibility = View.VISIBLE
-            }
-        }
         webView.loadUrl(startPage)
-        toolbar.searchbutton.setOnClickListener(){
-            var url=toolbar.url.text.toString()
+        toolbar.searchbutton.setOnClickListener() {
+            var url = toolbar.url.text.toString()
             createurl(url)
             webView.loadUrl(URL)
             toolbar.url.setText(URL)
         }
 
+        navigation.setOnNavigationItemSelectedListener {
+            when(it.itemId){
+                R.id.back -> {
+                    if(webView.canGoBack())
+                        webView.goBack()
+                    URL=webView.url
+                    toolbar.url.setText(URL)
+                    true
+                }
+                R.id.forward -> {
+                    if(webView.canGoForward())
+                        webView.goForward()
+                    URL=webView.url
+                    toolbar.url.setText(URL)
+                    true
+                }
+                R.id.refresh -> {
+                    webView.reload()
+                    toolbar.url.setText(URL)
+                    URL=webView.url
+                    true
+                }
+                else -> false
+            }
+        }
+
         toolbar.url.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-                var url=toolbar.url.text.toString()
+                var url = toolbar.url.text.toString()
                 createurl(url)
                 webView.loadUrl(URL)
                 toolbar.url.setText(URL)
@@ -107,27 +113,94 @@ class WebViewActivity : AppCompatActivity() {
         })
 
 
+        webView.setOnTouchListener(object : View.OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                when (event?.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        URL=webView.url
+                        toolbar.url.setText(URL)
+                    }
+                }
+
+                return v?.onTouchEvent(event) ?: true
+            }
+        })
+    }
+
+    private fun initWebView() {
+
+        webView.settings.setSupportZoom(false)
+        webView.setWebViewClient(WebViewClient())
+        webView.getSettings().setJavaScriptEnabled(true)
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true)
+        webView.getSettings().setPluginState(WebSettings.PluginState.ON)
+        webView.getSettings().setPluginState(WebSettings.PluginState.ON_DEMAND);
+        webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+        //webView.getSettings().setMediaPlaybackRequiresUserGesture(false)
+        webView.setWebChromeClient(WebChromeClient())
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                //       endLoaderAnimate()
+            }
+
+            override fun onReceivedError(
+                view: WebView?,
+                request: WebResourceRequest?,
+                error: WebResourceError?
+            ) {
+                super.onReceivedError(view, request, error)
+                //endLoaderAnimate()
+                showErrorDialog(
+                    "Error",
+                    "No internet connection. Please check your connection.",
+                    this@WebViewActivity
+                )
+            }
+        }
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+                super.onShowCustomView(view, callback)
+
+                if (view is FrameLayout) {
+                    fullscreenView = view
+                    fullscreen.addView(fullscreenView)
+                    fullscreen.visibility = View.VISIBLE
+                    root_layout.visibility = View.GONE
+                    navigation.visibility=View.INVISIBLE
+                }
 
 
+            }
+
+            override fun onHideCustomView() {
+                super.onHideCustomView()
+                fullscreen.removeView(fullscreenView)
+                fullscreen.visibility = View.GONE
+                root_layout.visibility = View.VISIBLE
+                navigation.visibility=View.VISIBLE
+            }
+        }
+
+        toolbar.url.setText(URL)
     }
 
     private fun refresh() {
         swipeRefreshLayout.setOnRefreshListener {
-                       webView.reload()
+            webView.reload()
             swipeRefreshLayout.setRefreshing(false)
         }
     }
 
     private fun createurl(url: String) {
-        if(url.take(3)=="www" || url.take(3)=="WWW")
-            URL=("https://"+url)
-        else{
-            if(url.contains('.') && url.take(12)!="https://www.")
-                URL=("https://www."+url)
-            else{
-                if(url.take(12)=="https://www.")
-                    URL=url
-                else URL=("https://www.google.com/search?q="+url)
+        if (url.take(3) == "www" || url.take(3) == "WWW")
+            URL = ("https://" + url)
+        else {
+            if (url.contains('.') && url.take(12) != "https://www.")
+                URL = ("https://www." + url)
+            else {
+                if (url.take(12) == "https://www.")
+                    URL = url
+                else URL = ("https://www.google.com/search?q=" + url)
             }
 
         }
@@ -137,7 +210,7 @@ class WebViewActivity : AppCompatActivity() {
 
     //setting menu in action bar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.my_menu,menu)
+        menuInflater.inflate(R.menu.my_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -145,11 +218,11 @@ class WebViewActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_cut -> {
             // User chose the "Print" item
-            Toast.makeText(this,"Action cut",Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Action cut", Toast.LENGTH_LONG).show()
             true
         }
-        android.R.id.home ->{
-            Toast.makeText(this,"Home action",Toast.LENGTH_LONG).show()
+        android.R.id.home -> {
+            Toast.makeText(this, "Home action", Toast.LENGTH_LONG).show()
             true
         }
 
@@ -165,8 +238,10 @@ class WebViewActivity : AppCompatActivity() {
 
         if (isAlreadyCreated && !isNetworkAvailable()) {
             isAlreadyCreated = false
-            showErrorDialog("Error", "No internet connection. Please check your connection.",
-                this@WebViewActivity)
+            showErrorDialog(
+                "Error", "No internet connection. Please check your connection.",
+                this@WebViewActivity
+            )
         }
     }
 
@@ -199,35 +274,6 @@ class WebViewActivity : AppCompatActivity() {
         })
         dialog.create().show()
     }
-
-    /*private fun endLoaderAnimate() {
-        loaderImage.clearAnimation()
-        loaderImage.visibility = View.GONE
-    }
-
-    private fun startLoaderAnimate() {
-        val objectAnimator = object : Animation() {
-            override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
-                val startHeight = 170
-                val newHeight = (startHeight + (startHeight + 40) * interpolatedTime).toInt()
-                loaderImage.layoutParams.height = newHeight
-                loaderImage.requestLayout()
-            }
-
-            override fun initialize(width: Int, height: Int, parentWidth: Int, parentHeight: Int) {
-                super.initialize(width, height, parentWidth, parentHeight)
-            }
-
-            override fun willChangeBounds(): Boolean {
-                return true
-            }
-        }
-
-        objectAnimator.repeatCount = -1
-        objectAnimator.repeatMode = ValueAnimator.REVERSE
-        objectAnimator.duration = 1000
-        loaderImage.startAnimation(objectAnimator)
-    }*/
 
 
 }
