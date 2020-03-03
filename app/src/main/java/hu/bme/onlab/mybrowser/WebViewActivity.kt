@@ -1,8 +1,10 @@
 package hu.bme.onlab.mybrowser
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -12,6 +14,7 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.baoyz.widget.PullRefreshLayout
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.toolbar.view.*
 
@@ -22,17 +25,19 @@ class WebViewActivity : AppCompatActivity() {
         private var isAlreadyCreated = false
         private val startPage="https://www.google.com/"
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
 
+        refresh()
 
         setSupportActionBar(findViewById(R.id.toolbar))
         // startLoaderAnimate()
         root_layout.visibility=View.VISIBLE
         fullscreen.visibility=View.GONE
 
-        webView.settings.javaScriptEnabled =true
+        //webView.settings.javaScriptEnabled =true
         webView.settings.setSupportZoom(false)
         webView.setWebViewClient(WebViewClient())
         webView.getSettings().setJavaScriptEnabled(true)
@@ -97,6 +102,13 @@ class WebViewActivity : AppCompatActivity() {
 
 
 
+    }
+
+    private fun refresh() {
+        swipeRefreshLayout.setOnRefreshListener {
+                       webView.reload()
+            swipeRefreshLayout.setRefreshing(false)
+        }
     }
 
     private fun createurl(url: String) {
