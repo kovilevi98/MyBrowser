@@ -17,6 +17,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.baoyz.widget.PullRefreshLayout
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.toolbar.view.*
+import androidx.core.app.ComponentActivity
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+//import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
 class WebViewActivity : AppCompatActivity() {
@@ -24,12 +29,14 @@ class WebViewActivity : AppCompatActivity() {
         private var URL = "https://google.com"
         private var isAlreadyCreated = false
         private val startPage="https://www.google.com/"
+  //      private var  bottomNavigation: BottomNavigationView? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
 
+        //bottomNavigation = findViewById(R.id.bottom_navigation)
         refresh()
 
         setSupportActionBar(findViewById(R.id.toolbar))
