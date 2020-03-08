@@ -3,46 +3,28 @@ package hu.bme.onlab.mybrowser
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.webkit.*
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkDatabase
+import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkEntity
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.toolbar.view.*
+import java.time.LocalDateTime
 
 
 class WebViewActivity : AppCompatActivity() {
-   /* var mDownPosX : Float=0.0f
-    var mDownPosY : Float=0.0f
-    var mUpPosX : Float=0.0f
-    var mUpPosY : Float=0.0f
-    private var MOVE_THRESHOLD_DP: Float = 0.toFloat()
 
-    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        MOVE_THRESHOLD_DP = 20.0F * act.getResources().getDisplayMetrics().density;
-
-        if(event !=null){
-        when (event.getAction()) {
-            MotionEvent.ACTION_DOWN -> {
-                this.mDownPosX = event.getX()
-                this.mDownPosY = event.getY()
-            }
-            MotionEvent.ACTION_UP -> {
-                this.mUpPosX = event.getX()
-                this.mUpPosY = event.getY()
-                if (Math.abs(mUpPosX - this.mDownPosX) < MOVE_THRESHOLD_DP && Math.abs(mUpPosY - this.mDownPosY) < MOVE_THRESHOLD_DP) {
-                    //your click code here
-                }
-            }
-        }
-        return false
-        }
-    }*/
 
 
     lateinit var fullscreenView: View
@@ -50,15 +32,22 @@ class WebViewActivity : AppCompatActivity() {
     private var isAlreadyCreated = false
     private val startPage = "https://www.google.com/"
     private var bottomNavigation: BottomNavigationView? = null
+    private lateinit var db:BookMarkDatabase
+    private var menu : Menu? =null
+    private var filledStar=false
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
 
+        db = BookMarkDatabase.getInstance(this)
+
+        //db.bookMarkDao().insertBookMark(BookMarkEntity("asd","sad"))*/
 
         setSupportActionBar(findViewById(R.id.toolbar))
         bottomNavigation = findViewById(R.id.navigation)
+
 
         // startLoaderAnimate()
         root_layout.visibility = View.VISIBLE
@@ -68,12 +57,15 @@ class WebViewActivity : AppCompatActivity() {
         initWebView()
 
         webView.loadUrl(startPage)
+        starCheck()
         toolbar.searchbutton.setOnClickListener() {
             var url = toolbar.url.text.toString()
             createurl(url)
             webView.loadUrl(URL)
+            starCheck()
             toolbar.url.setText(URL)
         }
+
 
         navigation.setOnNavigationItemSelectedListener {
             when(it.itemId){
@@ -106,6 +98,7 @@ class WebViewActivity : AppCompatActivity() {
                 var url = toolbar.url.text.toString()
                 createurl(url)
                 webView.loadUrl(URL)
+                starCheck()
                 toolbar.url.setText(URL)
                 return@OnKeyListener true
             }
@@ -141,6 +134,7 @@ class WebViewActivity : AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 //       endLoaderAnimate()
+                starCheck()
             }
 
             override fun onReceivedError(
@@ -169,7 +163,6 @@ class WebViewActivity : AppCompatActivity() {
                     navigation.visibility=View.INVISIBLE
                 }
 
-
             }
 
             override fun onHideCustomView() {
@@ -182,11 +175,14 @@ class WebViewActivity : AppCompatActivity() {
         }
 
         toolbar.url.setText(URL)
+        val et = findViewById(R.id.url) as EditText
+        et.setSelection(et.text.length)
     }
 
     private fun refresh() {
         swipeRefreshLayout.setOnRefreshListener {
             webView.reload()
+            starCheck()
             swipeRefreshLayout.setRefreshing(false)
         }
     }
@@ -211,11 +207,35 @@ class WebViewActivity : AppCompatActivity() {
     //setting menu in action bar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.my_menu, menu)
+        this.menu=menu
         return super.onCreateOptionsMenu(menu)
     }
 
     // actions on click menu items
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.star -> {
+            var currenturl=webView.url.toString()
+           // insertBookmark(BookMarkEntity(currenturl,LocalDateTime.now().toString()))
+            if (!filledStar){
+                insertBookmark(BookMarkEntity(currenturl,LocalDateTime.now().toString()))
+                menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this,R.drawable.ic_action_star_10))
+                Log.e("meret:","ok")
+            }
+            else{
+                var list=getBookMark(currenturl)
+                menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this,R.drawable.ic_star_0))
+                for (i in list)
+                    deleteBookMark(i)
+                Log.e("meret:","nemok")
+
+            }
+            //starCheck()
+            refresh()
+            Log.e("meret:",getBookMarks().size.toString())
+
+            true
+        }
         R.id.tabs -> {
             // User chose the "Print" item
             Toast.makeText(this, "Action cut", Toast.LENGTH_LONG).show()
@@ -276,4 +296,44 @@ class WebViewActivity : AppCompatActivity() {
     }
 
 
+    private fun insertBookmark(bookmarkdata: BookMarkEntity){
+        //val task = Runnable { db?.bookMarkDao()?.insertBookMark(bookmarkdata) }
+        val dbThread = Thread{
+            db.bookMarkDao().insertBookMark(bookmarkdata)
+        }
+        dbThread.start()
+    }
+    private fun getBookMarks():List<BookMarkEntity>{
+        return BookMarkDatabase.getInstance(this).bookMarkDao().getBookMarkList()
+    }
+    private fun getBookMark(name:String):List<BookMarkEntity>{
+        return BookMarkDatabase.getInstance(this).bookMarkDao().getSpecificGrades(name)
+    }
+
+    private fun deleteBookMark(bookmarkdata: BookMarkEntity){
+        BookMarkDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
+    }
+
+    private fun starCheck(){
+        var currenturl=webView.url.toString()
+        Log.e("itt","vok")
+       // if (menu?.getItem(1) == ContextCompat.getDrawable(this,R.drawable.ic_star_border)){
+            var list = getBookMarks()
+            var new=true
+            for (i in list){
+                if (i.url==currenturl)
+                    new=false
+            }
+            if(!new){
+                menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this,R.drawable.ic_action_star_10))
+                filledStar=true
+                Log.e("halo","halo")
+            }
+            else {
+                menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this,R.drawable.ic_star_0))
+                filledStar=false
+                Log.e("halo","halo2")
+            }
+
+    }
 }

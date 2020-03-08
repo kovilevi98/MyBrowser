@@ -15,7 +15,7 @@
         android:id="@+id/star"
         android:title="@string/star"
         app:showAsAction="ifRoom|withText"
-        android:icon="@drawable/ic_star_border"
+        android:icon="@drawable/ic_star_0"
         />
 
     <item
