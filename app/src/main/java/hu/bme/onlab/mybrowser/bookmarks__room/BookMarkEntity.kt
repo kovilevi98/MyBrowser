@@ -10,7 +10,6 @@ data class BookMarkEntity (val url_t:String, val time_t:String) {
     @PrimaryKey(autoGenerate = true)
     public var id:Int =0
 
-
     @ColumnInfo(name = "url")
     public var url:String=""
 

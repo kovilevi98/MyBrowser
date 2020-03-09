@@ -24,6 +24,7 @@
         </activity>
         <activity android:name=".WebViewActivity"
             android:windowSoftInputMode="adjustPan"/>
+        <activity android:name=".bookmarks__room.BookMarkActivity" />
     </application>
 
 </manifest>
