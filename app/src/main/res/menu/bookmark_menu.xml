@@ -1,0 +1,17 @@
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <item
+        android:id="@+id/alldelete"
+        android:title="@string/delete_all_ticked"
+        android:icon="@drawable/ic_delete_black_18dp"
+        app:showAsAction="ifRoom|withText"
+        />
+    <item
+        android:id="@+id/back2"
+        android:icon="@drawable/ic_keyboard_arrow_left"
+        app:showAsAction="ifRoom|withText"
+        android:title="@string/back" />
+</menu>

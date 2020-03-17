@@ -12,6 +12,7 @@ import android.webkit.*
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -23,7 +24,6 @@ import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkActivity
 import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkDatabase
 import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkEntity
 import kotlinx.android.synthetic.main.activity_web_view.*
-import kotlinx.android.synthetic.main.singlebookmark.view.*
 import kotlinx.android.synthetic.main.toolbar.view.*
 import java.time.LocalDateTime
 
@@ -31,16 +31,15 @@ import java.time.LocalDateTime
 public class WebViewActivity : AppCompatActivity() {
 
 
-
     lateinit var fullscreenView: View
     private var URL = "https://google.com"
     private var isAlreadyCreated = false
     private val startPage = "https://www.google.com/"
     private var bottomNavigation: BottomNavigationView? = null
-    public lateinit var db:BookMarkDatabase
-    private var menu : Menu? =null
-    private var filledStar=false
-    private var list : List<BookMarkEntity> ?= null
+    lateinit var db: BookMarkDatabase
+    private var menu: Menu? = null
+    private var filledStar = false
+    private var list: List<BookMarkEntity>? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,35 +62,33 @@ public class WebViewActivity : AppCompatActivity() {
         initWebView()
 
         webView.loadUrl(startPage)
-        starCheck()
         toolbar.searchbutton.setOnClickListener() {
             var url = toolbar.url.text.toString()
             createurl(url)
             webView.loadUrl(URL)
-            starCheck()
             toolbar.url.setText(URL)
         }
 
         navigation.setOnNavigationItemSelectedListener {
-            when(it.itemId){
+            when (it.itemId) {
                 R.id.back -> {
-                    if(webView.canGoBack())
+                    if (webView.canGoBack())
                         webView.goBack()
-                    URL=webView.url
+                    URL = webView.url
                     toolbar.url.setText(URL)
                     true
                 }
                 R.id.forward -> {
-                    if(webView.canGoForward())
+                    if (webView.canGoForward())
                         webView.goForward()
-                    URL=webView.url
+                    URL = webView.url
                     toolbar.url.setText(URL)
                     true
                 }
                 R.id.refresh -> {
                     webView.reload()
                     toolbar.url.setText(URL)
-                    URL=webView.url
+                    URL = webView.url
                     true
                 }
                 else -> false
@@ -103,7 +100,6 @@ public class WebViewActivity : AppCompatActivity() {
                 var url = toolbar.url.text.toString()
                 createurl(url)
                 webView.loadUrl(URL)
-                starCheck()
                 toolbar.url.setText(URL)
                 return@OnKeyListener true
             }
@@ -115,7 +111,7 @@ public class WebViewActivity : AppCompatActivity() {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 when (event?.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        URL=webView.url
+                        URL = webView.url
                         toolbar.url.setText(URL)
                     }
                 }
@@ -169,7 +165,7 @@ public class WebViewActivity : AppCompatActivity() {
                     fullscreen.addView(fullscreenView)
                     fullscreen.visibility = View.VISIBLE
                     root_layout.visibility = View.GONE
-                    navigation.visibility=View.INVISIBLE
+                    navigation.visibility = View.INVISIBLE
                 }
 
             }
@@ -179,7 +175,7 @@ public class WebViewActivity : AppCompatActivity() {
                 fullscreen.removeView(fullscreenView)
                 fullscreen.visibility = View.GONE
                 root_layout.visibility = View.VISIBLE
-                navigation.visibility=View.VISIBLE
+                navigation.visibility = View.VISIBLE
             }
         }
         toolbar.url.setText(URL)
@@ -190,7 +186,6 @@ public class WebViewActivity : AppCompatActivity() {
     private fun refresh() {
         swipeRefreshLayout.setOnRefreshListener {
             webView.reload()
-            starCheck()
             swipeRefreshLayout.setRefreshing(false)
         }
     }
@@ -212,7 +207,7 @@ public class WebViewActivity : AppCompatActivity() {
     //setting menu in action bar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.my_menu, menu)
-        this.menu=menu
+        this.menu = menu
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -220,15 +215,16 @@ public class WebViewActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.star -> {
-            var currenturl=webView.url.toString()
-           // insertBookmark(BookMarkEntity(currenturl,LocalDateTime.now().toString()))
-            if (!filledStar){
-                insertBookmark(BookMarkEntity(currenturl,LocalDateTime.now().toString()))
-                menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this,R.drawable.ic_action_star_10))
-            }
-            else{
-                var list=getBookMark(currenturl)
-                menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this,R.drawable.ic_star_0))
+            var currenturl = webView.url.toString()
+            // insertBookmark(BookMarkEntity(currenturl,LocalDateTime.now().toString()))
+            if (!filledStar) {
+                insertBookmark(BookMarkEntity(currenturl, LocalDateTime.now().toString(),webView.title))
+                //menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_action_star_10))
+                starChanger(1,R.drawable.ic_action_star_10)
+            } else {
+                var list = getBookMark(currenturl)
+                //menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_star_0))
+                starChanger(1,R.drawable.ic_star_0)
                 for (i in list)
                     deleteBookMark(i)
             }
@@ -301,65 +297,45 @@ public class WebViewActivity : AppCompatActivity() {
     }
 
 
-    private fun insertBookmark(bookmarkdata: BookMarkEntity){
-        val dbThread = Thread{
+    private fun insertBookmark(bookmarkdata: BookMarkEntity) {
+        val dbThread = Thread {
             db.bookMarkDao().insertBookMark(bookmarkdata)
         }
         dbThread.start()
     }
+
     private fun getBookMarks(): LiveData<List<BookMarkEntity>> {
         return BookMarkDatabase.getInstance(this).bookMarkDao().getBookMarkList()
     }
-    private fun getBookMark(name:String):List<BookMarkEntity>{
+
+    private fun getBookMark(name: String): List<BookMarkEntity> {
         return BookMarkDatabase.getInstance(this).bookMarkDao().getSpecificGrades(name)
     }
 
-    private fun deleteBookMark(bookmarkdata: BookMarkEntity){
+    private fun deleteBookMark(bookmarkdata: BookMarkEntity) {
         BookMarkDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
     }
 
-    private fun starCheck(){
-        /*var currenturl=webView.url.toString()
-        Log.e("itt","vok")
-       // if (menu?.getItem(1) == ContextCompat.getDrawable(this,R.drawable.ic_star_border)){
-            //var list = getBookMarks()
-            var new=true
-            for (i in list){
-                if (i.url==currenturl)
-                    new=false
-            }
-            if(!new){
-                menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this,R.drawable.ic_action_star_10))
-                filledStar=true
-                Log.e("halo","halo")
-            }
-            else {
-                menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this,R.drawable.ic_star_0))
-                filledStar=false
-                Log.e("halo","halo2")
-            }*/
 
+    private fun starCheck_LOCAL(list: List<BookMarkEntity>) {
+        var currenturl = webView.url.toString()
+        var new = true
+        Log.e("meret", list.size.toString())
+        for (i in list) {
+            if (i.url == currenturl)
+                new = false
+        }
+        if (!new) {
+            starChanger(1,R.drawable.ic_action_star_10)
+            //menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_action_star_10))
+            filledStar = true
+        } else {
+            //menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_star_0))
+            starChanger(1,R.drawable.ic_star_0)
+            filledStar = false
+        }
     }
-
-
-    private fun starCheck_LOCAL(list: List<BookMarkEntity>){
-        var currenturl=webView.url.toString()
-        var new=true
-        Log.e("meret",list.size.toString())
-        for (i in list){
-            if (i.url==currenturl)
-                new=false
-        }
-        if(!new){
-            menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this,R.drawable.ic_action_star_10))
-            filledStar=true
-        }
-        else {
-            menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this,R.drawable.ic_star_0))
-            filledStar=false
-        }
-
+    private fun starChanger(index:Int,@DrawableRes id : Int){
+        menu?.getItem(index)?.setIcon(ContextCompat.getDrawable(this,id))
     }
-
-
 }

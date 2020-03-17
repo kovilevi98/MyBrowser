@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-private val DATABASE= "bookmarks.db"
+private val DATABASE= "bookmarks_02.db"
 
 @Database(entities = arrayOf(BookMarkEntity::class), version = 1)
 abstract class BookMarkDatabase() : RoomDatabase() {

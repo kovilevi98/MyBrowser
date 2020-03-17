@@ -2,28 +2,25 @@ package hu.bme.onlab.mybrowser.bookmarks__room
 
 import android.content.Context
 import com.airbnb.epoxy.AsyncEpoxyController
-import com.airbnb.epoxy.EpoxyController
-import hu.bme.onlab.mybrowser.WebViewActivity
-import kotlinx.android.synthetic.main.singlebookmark.view.*
 
 
-class SingleBookMakrController(context : Context) : AsyncEpoxyController(){
-    var bookItems : List<BookMarkEntity> = emptyList()
-        set(value){
+class SingleBookMakrController(context: Context) : AsyncEpoxyController() {
+    var bookItems: MutableList<BookMarkEntity> = mutableListOf()
+        set(value) {
             field = value
             requestModelBuild()
         }
 
-    private lateinit var db:BookMarkDatabase
+    private var db: BookMarkDatabase
+
     init {
-        db= BookMarkDatabase.getInstance(context)
-        //bookItems = db.bookMarkDao().getBookMarkList()
+        db = BookMarkDatabase.getInstance(context)
     }
 
     override fun buildModels() {
-        var i:Long=0
+        var i: Long = 0
 
-        bookItems.forEach{
+        bookItems.forEach {
             singleBookMark {
                 id(i++)
                 bookmark(it)

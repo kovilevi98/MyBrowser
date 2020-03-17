@@ -21,9 +21,22 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/navigation"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/singlebookmark" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bookmarknav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/colorPrimary"
+        app:itemIconTint="@color/icons"
+        app:itemTextColor="@color/icons"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bookmark_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
