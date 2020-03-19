@@ -1,17 +1,23 @@
 package hu.bme.onlab.mybrowser.bookmarks__room
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.View
-import android.widget.CompoundButton
+import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatImageButton
-import androidx.appcompat.widget.AppCompatTextView
-import com.airbnb.epoxy.*
+import com.airbnb.epoxy.EpoxyAttribute
+import com.airbnb.epoxy.EpoxyHolder
+import com.airbnb.epoxy.EpoxyModelClass
+import com.airbnb.epoxy.EpoxyModelWithHolder
 import hu.bme.onlab.mybrowser.R
+import hu.bme.onlab.mybrowser.WebViewActivity
 
 
 @EpoxyModelClass(layout = R.layout.singlebookmark)
-abstract class SingleBookMarkModel : EpoxyModelWithHolder<SingleBookMarkModel.Holder>() {
+abstract class SingleBookMarkModel(val context: Context) :
+    EpoxyModelWithHolder<SingleBookMarkModel.Holder>() {
 
     @EpoxyAttribute
     lateinit var bookmark: BookMarkEntity
@@ -29,12 +35,35 @@ abstract class SingleBookMarkModel : EpoxyModelWithHolder<SingleBookMarkModel.Ho
             onCheckedAction=isChecked
             with(bookmark){
                 this.isChecked=onCheckedAction
-                if(this.isChecked)
-                    Log.e("ki lett","valasztva")
             }
         }
         holder.bookmarkdelete.setOnClickListener{
-            //Todo deletee this item from the model
+            Log.e("ki lett", "valasztva")
+            var new_url: String
+            with(bookmark) {
+                //Log.e("fd",this.url)
+                new_url = this.url
+            }
+            val dbThread = Thread {
+                var bookmarkdata =
+                    BookMarkDatabase.getInstance(context).bookMarkDao().getSpecificGrades(new_url)
+                bookmarkdata.forEach {
+                    BookMarkDatabase.getInstance(context).bookMarkDao().deleteBookMark(it)
+                }
+            }
+            dbThread.start()
+
+        }
+        holder.urlView.setOnClickListener() {
+            var new_url: String
+            with(bookmark) {
+                //Log.e("fd",this.url)
+                new_url = this.url
+            }
+
+            val intent = Intent(context, WebViewActivity::class.java)
+            intent.putExtra("newUrl", new_url)
+            context.startActivity(intent)
         }
         with(bookmark) {
             holder.urlView.text = title
@@ -42,7 +71,7 @@ abstract class SingleBookMarkModel : EpoxyModelWithHolder<SingleBookMarkModel.Ho
     }
 
     inner class Holder : EpoxyHolder() {
-        lateinit var urlView: AppCompatTextView
+        lateinit var urlView: AppCompatButton
         lateinit var checked: AppCompatCheckBox
         lateinit var bookmarkdelete: AppCompatImageButton
 //        lateinit var timeView: AppCompatTextView

@@ -1,9 +1,6 @@
 package hu.bme.onlab.mybrowser.bookmarks__room
 
-import android.app.Activity
-import android.app.PendingIntent.getActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
@@ -11,8 +8,6 @@ import androidx.lifecycle.Observer
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import hu.bme.onlab.mybrowser.R
 import kotlinx.android.synthetic.main.activity_bookmark.*
-import kotlinx.android.synthetic.main.activity_web_view.*
-import kotlinx.android.synthetic.main.toolbar.view.*
 
 
 class BookMarkActivity : AppCompatActivity() {
@@ -40,8 +35,6 @@ class BookMarkActivity : AppCompatActivity() {
             }
         }
 
-
-
       //  initRecycler()
 
        recycler_view.setController(controller)
@@ -58,7 +51,10 @@ class BookMarkActivity : AppCompatActivity() {
     }
 
     private fun deleteBookMark(bookmarkdata: BookMarkEntity) {
-        BookMarkDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
+        val dbThread = Thread {
+            BookMarkDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
+        }
+        dbThread.start()
     }
 
     fun getDeleted():List<BookMarkEntity>{
@@ -71,11 +67,13 @@ class BookMarkActivity : AppCompatActivity() {
         return tmp
     }
 
-    fun removeItems(forDelete:List<BookMarkEntity>){
+    public fun removeItems(forDelete: List<BookMarkEntity>) {
         forDelete.forEach{
             controller.bookItems.remove(it)
             deleteBookMark(it)
         }
         controller.requestModelBuild()
     }
+
+
 }

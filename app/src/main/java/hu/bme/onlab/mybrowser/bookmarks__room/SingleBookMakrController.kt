@@ -4,7 +4,8 @@ import android.content.Context
 import com.airbnb.epoxy.AsyncEpoxyController
 
 
-class SingleBookMakrController(context: Context) : AsyncEpoxyController() {
+class SingleBookMakrController(val context: Context) : AsyncEpoxyController() {
+
     var bookItems: MutableList<BookMarkEntity> = mutableListOf()
         set(value) {
             field = value
@@ -17,15 +18,18 @@ class SingleBookMakrController(context: Context) : AsyncEpoxyController() {
         db = BookMarkDatabase.getInstance(context)
     }
 
+    fun setData(tmp: MutableList<BookMarkEntity>) {
+        bookItems = tmp
+    }
+
     override fun buildModels() {
         var i: Long = 0
 
         bookItems.forEach {
-            singleBookMark {
+            singleBookMark(context) {
                 id(i++)
                 bookmark(it)
             }
         }
     }
-
 }

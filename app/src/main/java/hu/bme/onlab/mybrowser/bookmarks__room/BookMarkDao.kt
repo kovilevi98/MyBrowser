@@ -12,6 +12,9 @@ interface BookMarkDao {
     @Query("SELECT * FROM bookmark WHERE url = :name")
     fun getSpecificGrades(name: String): List<BookMarkEntity>
 
+    @Query("SELECT * FROM bookmark WHERE title = :name")
+    fun getFromTitle(name: String): List<BookMarkEntity>
+
     @Delete
     fun deleteBookMark(bookMark:BookMarkEntity)
 

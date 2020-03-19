@@ -34,7 +34,7 @@ public class WebViewActivity : AppCompatActivity() {
     lateinit var fullscreenView: View
     private var URL = "https://google.com"
     private var isAlreadyCreated = false
-    private val startPage = "https://www.google.com/"
+    private var startPage = "https://www.google.com/"
     private var bottomNavigation: BottomNavigationView? = null
     lateinit var db: BookMarkDatabase
     private var menu: Menu? = null
@@ -46,6 +46,9 @@ public class WebViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
 
+        val newstarturl: String? = intent.getStringExtra("newUrl")
+        if (newstarturl != null)
+            startPage = newstarturl
         db = BookMarkDatabase.getInstance(this)
 
         //db.bookMarkDao().insertBookMark(BookMarkEntity("asd","sad"))*/
