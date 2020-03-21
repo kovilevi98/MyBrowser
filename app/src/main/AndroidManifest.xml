@@ -28,6 +28,10 @@
             android:noHistory = "true"
             android:parentActivityName=".WebViewActivity"
             />
+        <activity
+            android:name=".history_room.HistoryActivity"
+            android:noHistory="true"
+            android:parentActivityName=".WebViewActivity" />
     </application>
 
 </manifest>

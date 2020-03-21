@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".bookmarks__room.BookMarkActivity">
+    tools:context=".history_room.HistoryActivity">
 
     <com.airbnb.epoxy.EpoxyRecyclerView
-        android:id="@+id/recycler_view"
+        android:id="@+id/recycler_view_history"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipChildren="false"
@@ -19,10 +19,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/singlebookmark" />
+        tools:listitem="@layout/singlehistory" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bookmarknav"
+        android:id="@+id/bookmarknav_history"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"

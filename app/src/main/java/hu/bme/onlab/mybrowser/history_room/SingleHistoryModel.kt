@@ -1,4 +1,4 @@
-package hu.bme.onlab.mybrowser.bookmarks__room
+package hu.bme.onlab.mybrowser.history_room
 
 import android.content.Context
 import android.content.Intent
@@ -12,54 +12,54 @@ import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
 import hu.bme.onlab.mybrowser.R
 import hu.bme.onlab.mybrowser.WebViewActivity
+import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
 
-
-@EpoxyModelClass(layout = R.layout.singlebookmark)
-abstract class SingleBookMarkModel(val context: Context) :
-    EpoxyModelWithHolder<SingleBookMarkModel.Holder>() {
+@EpoxyModelClass(layout = R.layout.singlehistory)
+abstract class SingleHistoryModel(val context: Context) :
+    EpoxyModelWithHolder<SingleHistoryModel.Holder>() {
 
     @EpoxyAttribute
-    lateinit var bookmark: h_b_Entity
+    lateinit var historyItem: h_b_Entity
 
-    override fun bind(holder: SingleBookMarkModel.Holder) {
+    override fun bind(holder: Holder) {
         super.bind(Holder())
-        val controller = SingleBookMakrController.ticked_list
+        val controller = SingleHistoryController.ticked_list
 
         holder.checked.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
-                with(bookmark) {
+                with(historyItem) {
                     controller.ticked.add(this)
                 }
             } else {
-                with(bookmark) {
+                with(historyItem) {
                     controller.ticked.remove(this)
                 }
             }
         }
-        holder.bookmarkdelete.setOnClickListener {
+        holder.historydelete.setOnClickListener {
             var new_url: String
-            with(bookmark) {
+            with(historyItem) {
                 new_url = this.url
             }
             val dbThread = Thread {
                 var bookmarkdata =
-                    BookMarkDatabase.getInstance(context).bookMarkDao().getSpecificGrades(new_url)
+                    HistoryDatabase.getInstance(context).historyDao().getSpecificGrades(new_url)
                 bookmarkdata.forEach {
-                    BookMarkDatabase.getInstance(context).bookMarkDao().deleteBookMark(it)
+                    HistoryDatabase.getInstance(context).historyDao().deleteBookMark(it)
                 }
             }
             dbThread.start()
         }
         holder.urlView.setOnClickListener() {
             var new_url: String
-            with(bookmark) {
+            with(historyItem) {
                 new_url = this.url
             }
             val intent = Intent(context, WebViewActivity::class.java)
             intent.putExtra("newUrl", new_url)
             context.startActivity(intent)
         }
-        with(bookmark) {
+        with(historyItem) {
             holder.urlView.text = title
         }
     }
@@ -67,12 +67,12 @@ abstract class SingleBookMarkModel(val context: Context) :
     inner class Holder : EpoxyHolder() {
         lateinit var urlView: AppCompatButton
         lateinit var checked: AppCompatCheckBox
-        lateinit var bookmarkdelete: AppCompatImageButton
+        lateinit var historydelete: AppCompatImageButton
 
         override fun bindView(itemView: View) {
-            urlView = itemView.findViewById(R.id.bookmarkurl)
-            checked = itemView.findViewById(R.id.bookmarkchecked)
-            bookmarkdelete = itemView.findViewById(R.id.bookmarkdelete)
+            urlView = itemView.findViewById(R.id.historyurl)
+            checked = itemView.findViewById(R.id.historykchecked)
+            historydelete = itemView.findViewById(R.id.histordelete)
         }
     }
 }

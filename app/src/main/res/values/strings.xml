@@ -11,5 +11,6 @@
     <string name="bookmark">Bookmark</string>
     <string name="private_tab">Private Tab</string>
     <string name="delete_all_ticked">delete All ticked</string>
+    <string name="textview">TextView</string>
 
 </resources>

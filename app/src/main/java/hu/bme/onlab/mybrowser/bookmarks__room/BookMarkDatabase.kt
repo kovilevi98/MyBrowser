@@ -7,10 +7,10 @@ import androidx.room.RoomDatabase
 
 private val DATABASE = "bookmarks_03.db"
 
-@Database(entities = arrayOf(BookMarkEntity::class), version = 1)
+@Database(entities = arrayOf(h_b_Entity::class), version = 1)
 abstract class BookMarkDatabase() : RoomDatabase() {
 
-        abstract fun bookMarkDao(): BookMarkDao
+    abstract fun bookMarkDao(): h_b_Dao
 
         companion object{
 
@@ -21,11 +21,6 @@ abstract class BookMarkDatabase() : RoomDatabase() {
                     instance = Room.databaseBuilder(context.getApplicationContext(),BookMarkDatabase::class.java, DATABASE).allowMainThreadQueries().build()
                 }
                 return instance!!
-            }
-
-
-            private fun buildDatabase(context: Context): BookMarkDatabase {
-                return Room.databaseBuilder(context, BookMarkDatabase::class.java, DATABASE).allowMainThreadQueries().build()
             }
         }
 }

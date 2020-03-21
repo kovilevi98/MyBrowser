@@ -22,10 +22,13 @@ import androidx.lifecycle.Observer
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkActivity
 import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkDatabase
-import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkEntity
+import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
+import hu.bme.onlab.mybrowser.history_room.HistoryActivity
+import hu.bme.onlab.mybrowser.history_room.HistoryDatabase
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.toolbar.view.*
 import java.time.LocalDateTime
+import java.util.*
 
 
 public class WebViewActivity : AppCompatActivity() {
@@ -37,9 +40,10 @@ public class WebViewActivity : AppCompatActivity() {
     private var startPage = "https://www.google.com/"
     private var bottomNavigation: BottomNavigationView? = null
     lateinit var db: BookMarkDatabase
+    lateinit var dbhistory: HistoryDatabase
     private var menu: Menu? = null
     private var filledStar = false
-    private var list: List<BookMarkEntity>? = null
+    private var list: List<h_b_Entity>? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,6 +54,7 @@ public class WebViewActivity : AppCompatActivity() {
         if (newstarturl != null)
             startPage = newstarturl
         db = BookMarkDatabase.getInstance(this)
+        dbhistory = HistoryDatabase.getInstance(this)
 
         //db.bookMarkDao().insertBookMark(BookMarkEntity("asd","sad"))*/
 
@@ -221,7 +226,13 @@ public class WebViewActivity : AppCompatActivity() {
             var currenturl = webView.url.toString()
             // insertBookmark(BookMarkEntity(currenturl,LocalDateTime.now().toString()))
             if (!filledStar) {
-                insertBookmark(BookMarkEntity(currenturl, LocalDateTime.now().toString(),webView.title))
+                insertBookmark(
+                    h_b_Entity(
+                        currenturl,
+                        LocalDateTime.now().toString(),
+                        webView.title
+                    )
+                )
                 //menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_action_star_10))
                 starChanger(1,R.drawable.ic_action_star_10)
             } else {
@@ -242,6 +253,12 @@ public class WebViewActivity : AppCompatActivity() {
 
         R.id.Bookmark -> {
             val intent = Intent(this, BookMarkActivity::class.java)
+            startActivity(intent)
+            true
+        }
+        R.id.history -> {
+            getBackForwardList()
+            val intent = Intent(this, HistoryActivity::class.java)
             startActivity(intent)
             true
         }
@@ -300,30 +317,37 @@ public class WebViewActivity : AppCompatActivity() {
     }
 
 
-    private fun insertBookmark(bookmarkdata: BookMarkEntity) {
+    private fun insertBookmark(bookmarkdata: h_b_Entity) {
         val dbThread = Thread {
             db.bookMarkDao().insertBookMark(bookmarkdata)
         }
         dbThread.start()
     }
 
-    private fun getBookMarks(): LiveData<List<BookMarkEntity>> {
+    private fun insertHistory(historydata: h_b_Entity) {
+        val dbThread = Thread {
+            dbhistory.historyDao().insertBookMark(historydata)
+        }
+        dbThread.start()
+    }
+
+    private fun getBookMarks(): LiveData<List<h_b_Entity>> {
         return BookMarkDatabase.getInstance(this).bookMarkDao().getBookMarkList()
     }
 
-    private fun getBookMark(name: String): List<BookMarkEntity> {
+    private fun getBookMark(name: String): List<h_b_Entity> {
         return BookMarkDatabase.getInstance(this).bookMarkDao().getSpecificGrades(name)
     }
 
-    private fun deleteBookMark(bookmarkdata: BookMarkEntity) {
+    private fun deleteBookMark(bookmarkdata: h_b_Entity) {
         BookMarkDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
     }
 
 
-    private fun starCheck_LOCAL(list: List<BookMarkEntity>) {
+    private fun starCheck_LOCAL(list: List<h_b_Entity>) {
         var currenturl = webView.url.toString()
         var new = true
-        Log.e("meret", list.size.toString())
+        //Log.e("meret", list.size.toString())
         for (i in list) {
             if (i.url == currenturl)
                 new = false
@@ -340,5 +364,24 @@ public class WebViewActivity : AppCompatActivity() {
     }
     private fun starChanger(index:Int,@DrawableRes id : Int){
         menu?.getItem(index)?.setIcon(ContextCompat.getDrawable(this,id))
+    }
+
+    fun getBackForwardList() {
+        val currentList: WebBackForwardList = webView.copyBackForwardList()
+        val currentSize = currentList.size
+        for (i in 0 until currentSize) {
+            val item = currentList.getItemAtIndex(i)
+            val url = item.url
+            Log.e(
+                "The URL at index: " + Integer.toString(i) + " is " + url
+                , ""
+            )
+            var tmp = h_b_Entity(item.url, Date().toString(), item.title)
+            insertHistory(tmp)
+        }
+        Log.e(
+            "history meret",
+            HistoryDatabase.getInstance(this).historyDao().getHistory().size.toString()
+        )
     }
 }

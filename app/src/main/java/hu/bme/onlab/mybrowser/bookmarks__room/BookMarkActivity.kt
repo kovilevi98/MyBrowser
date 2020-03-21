@@ -38,20 +38,18 @@ class BookMarkActivity : AppCompatActivity() {
         })
     }
 
-    private fun getBookMarks(): LiveData<List<BookMarkEntity>> {
+    private fun getBookMarks(): LiveData<List<h_b_Entity>> {
         return BookMarkDatabase.getInstance(this).bookMarkDao().getBookMarkList()
     }
 
-    private fun deleteBookMark(bookmarkdata: BookMarkEntity) {
+    private fun deleteBookMark(bookmarkdata: h_b_Entity) {
         val dbThread = Thread {
             BookMarkDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
         }
         dbThread.start()
     }
 
-    fun removeItems(forDelete: List<BookMarkEntity>) {
-        var valami: String
-        var valami2: Int
+    fun removeItems(forDelete: List<h_b_Entity>) {
         forDelete.forEach {
             controller.bookItems.remove(it)
             deleteBookMark(it)
