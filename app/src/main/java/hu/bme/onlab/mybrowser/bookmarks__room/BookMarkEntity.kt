@@ -20,9 +20,6 @@ data class BookMarkEntity (val url_t:String, val time_t:String, val title_t:Stri
     var time:String=""
         get() = field
 
-    var isChecked = false
-
-
 
     init {
         url=url_t

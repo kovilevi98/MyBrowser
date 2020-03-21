@@ -2,7 +2,6 @@ package hu.bme.onlab.mybrowser.bookmarks__room
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatCheckBox
@@ -22,26 +21,24 @@ abstract class SingleBookMarkModel(val context: Context) :
     @EpoxyAttribute
     lateinit var bookmark: BookMarkEntity
 
-    @EpoxyAttribute
-    var onCheckedAction:Boolean=false
-
-
-
     override fun bind(holder: SingleBookMarkModel.Holder) {
         super.bind(Holder())
-        //if(onCheckedAction.isChecked)
-        holder.checked.setOnCheckedChangeListener {
-                buttonView, isChecked ->
-            onCheckedAction=isChecked
-            with(bookmark){
-                this.isChecked=onCheckedAction
+        val controller = SingleBookMakrController.ticked_list
+
+        holder.checked.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+                with(bookmark) {
+                    controller.ticked.add(this)
+                }
+            } else {
+                with(bookmark) {
+                    controller.ticked.remove(this)
+                }
             }
         }
-        holder.bookmarkdelete.setOnClickListener{
-            Log.e("ki lett", "valasztva")
+        holder.bookmarkdelete.setOnClickListener {
             var new_url: String
             with(bookmark) {
-                //Log.e("fd",this.url)
                 new_url = this.url
             }
             val dbThread = Thread {
@@ -52,15 +49,12 @@ abstract class SingleBookMarkModel(val context: Context) :
                 }
             }
             dbThread.start()
-
         }
         holder.urlView.setOnClickListener() {
             var new_url: String
             with(bookmark) {
-                //Log.e("fd",this.url)
                 new_url = this.url
             }
-
             val intent = Intent(context, WebViewActivity::class.java)
             intent.putExtra("newUrl", new_url)
             context.startActivity(intent)
@@ -74,16 +68,11 @@ abstract class SingleBookMarkModel(val context: Context) :
         lateinit var urlView: AppCompatButton
         lateinit var checked: AppCompatCheckBox
         lateinit var bookmarkdelete: AppCompatImageButton
-//        lateinit var timeView: AppCompatTextView
 
         override fun bindView(itemView: View) {
             urlView = itemView.findViewById(R.id.bookmarkurl)
             checked = itemView.findViewById(R.id.bookmarkchecked)
             bookmarkdelete = itemView.findViewById(R.id.bookmarkdelete)
-//            timeView = itemView.findViewById(R.id.time)
         }
-
-
     }
-
 }

@@ -18,10 +18,6 @@ class SingleBookMakrController(val context: Context) : AsyncEpoxyController() {
         db = BookMarkDatabase.getInstance(context)
     }
 
-    fun setData(tmp: MutableList<BookMarkEntity>) {
-        bookItems = tmp
-    }
-
     override fun buildModels() {
         var i: Long = 0
 
@@ -31,5 +27,9 @@ class SingleBookMakrController(val context: Context) : AsyncEpoxyController() {
                 bookmark(it)
             }
         }
+    }
+
+    object ticked_list {
+        var ticked: MutableList<BookMarkEntity> = ArrayList()
     }
 }
