@@ -51,6 +51,7 @@ class BookMarkActivity : AppCompatActivity() {
 
     fun removeItems(forDelete: List<BookMarkEntity>) {
         var valami: String
+        var valami2: Int
         forDelete.forEach {
             controller.bookItems.remove(it)
             deleteBookMark(it)
