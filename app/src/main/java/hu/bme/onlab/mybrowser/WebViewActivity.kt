@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.webkit.*
 import android.widget.EditText
@@ -27,11 +26,12 @@ import hu.bme.onlab.mybrowser.history_room.HistoryActivity
 import hu.bme.onlab.mybrowser.history_room.HistoryDatabase
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.toolbar.view.*
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
 
 
-public class WebViewActivity : AppCompatActivity() {
+class WebViewActivity : AppCompatActivity() {
 
 
     lateinit var fullscreenView: View
@@ -70,8 +70,8 @@ public class WebViewActivity : AppCompatActivity() {
         initWebView()
 
         webView.loadUrl(startPage)
-        toolbar.searchbutton.setOnClickListener() {
-            var url = toolbar.url.text.toString()
+        toolbar.searchbutton.setOnClickListener {
+            val url = toolbar.url.text.toString()
             createurl(url)
             webView.loadUrl(URL)
             toolbar.url.setText(URL)
@@ -103,9 +103,9 @@ public class WebViewActivity : AppCompatActivity() {
             }
         }
 
-        toolbar.url.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+        toolbar.url.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-                var url = toolbar.url.text.toString()
+                val url = toolbar.url.text.toString()
                 createurl(url)
                 webView.loadUrl(URL)
                 toolbar.url.setText(URL)
@@ -136,14 +136,13 @@ public class WebViewActivity : AppCompatActivity() {
 
     private fun initWebView() {
         webView.settings.setSupportZoom(false)
-        webView.setWebViewClient(WebViewClient())
-        webView.getSettings().setJavaScriptEnabled(true)
-        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true)
-        webView.getSettings().setPluginState(WebSettings.PluginState.ON)
-        webView.getSettings().setPluginState(WebSettings.PluginState.ON_DEMAND);
-        webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+        webView.webViewClient = WebViewClient()
+        webView.settings.javaScriptEnabled = true
+        webView.settings.javaScriptCanOpenWindowsAutomatically = true
+        webView.settings.pluginState = WebSettings.PluginState.ON_DEMAND
+        webView.settings.mediaPlaybackRequiresUserGesture = false
         //webView.getSettings().setMediaPlaybackRequiresUserGesture(false)
-        webView.setWebChromeClient(WebChromeClient())
+        webView.webChromeClient = WebChromeClient()
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 //       endLoaderAnimate()
@@ -187,7 +186,7 @@ public class WebViewActivity : AppCompatActivity() {
             }
         }
         toolbar.url.setText(URL)
-        val et = findViewById(R.id.url) as EditText
+        val et = findViewById<EditText>(R.id.url)
         et.setSelection(et.text.length)
     }
 
@@ -223,7 +222,7 @@ public class WebViewActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.star -> {
-            var currenturl = webView.url.toString()
+            val currenturl = webView.url.toString()
             // insertBookmark(BookMarkEntity(currenturl,LocalDateTime.now().toString()))
             if (!filledStar) {
                 insertBookmark(
@@ -236,7 +235,7 @@ public class WebViewActivity : AppCompatActivity() {
                 //menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_action_star_10))
                 starChanger(1,R.drawable.ic_action_star_10)
             } else {
-                var list = getBookMark(currenturl)
+                val list = getBookMark(currenturl)
                 //menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_star_0))
                 starChanger(1,R.drawable.ic_star_0)
                 for (i in list)
@@ -345,7 +344,7 @@ public class WebViewActivity : AppCompatActivity() {
 
 
     private fun starCheck_LOCAL(list: List<h_b_Entity>) {
-        var currenturl = webView.url.toString()
+        val currenturl = webView.url.toString()
         var new = true
         //Log.e("meret", list.size.toString())
         for (i in list) {
@@ -363,25 +362,21 @@ public class WebViewActivity : AppCompatActivity() {
         }
     }
     private fun starChanger(index:Int,@DrawableRes id : Int){
-        menu?.getItem(index)?.setIcon(ContextCompat.getDrawable(this,id))
+        menu?.getItem(index)?.icon = ContextCompat.getDrawable(this, id)
     }
 
+    @SuppressLint("SimpleDateFormat")
     fun getBackForwardList() {
         val currentList: WebBackForwardList = webView.copyBackForwardList()
         val currentSize = currentList.size
         for (i in 0 until currentSize) {
             val item = currentList.getItemAtIndex(i)
-            val url = item.url
-            Log.e(
-                "The URL at index: " + Integer.toString(i) + " is " + url
-                , ""
-            )
-            var tmp = h_b_Entity(item.url, Date().toString(), item.title)
+            val sdf: SimpleDateFormat
+            sdf = SimpleDateFormat(getString(R.string.dateformat))
+            val currentDate = sdf.format(Date())
+            val tmp = h_b_Entity(item.url, currentDate, item.title)
             insertHistory(tmp)
         }
-        Log.e(
-            "history meret",
-            HistoryDatabase.getInstance(this).historyDao().getHistory().size.toString()
-        )
+
     }
 }

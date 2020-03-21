@@ -21,11 +21,11 @@ abstract class SingleBookMarkModel(val context: Context) :
     @EpoxyAttribute
     lateinit var bookmark: h_b_Entity
 
-    override fun bind(holder: SingleBookMarkModel.Holder) {
+    override fun bind(holder: Holder) {
         super.bind(Holder())
         val controller = SingleBookMakrController.ticked_list
 
-        holder.checked.setOnCheckedChangeListener { buttonView, isChecked ->
+        holder.checked.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 with(bookmark) {
                     controller.ticked.add(this)
@@ -42,8 +42,9 @@ abstract class SingleBookMarkModel(val context: Context) :
                 new_url = this.url
             }
             val dbThread = Thread {
-                var bookmarkdata =
+                val bookmarkdata =
                     BookMarkDatabase.getInstance(context).bookMarkDao().getSpecificGrades(new_url)
+                //Log.e("ennyi",bookmarkdata.size.toString())
                 bookmarkdata.forEach {
                     BookMarkDatabase.getInstance(context).bookMarkDao().deleteBookMark(it)
                 }
@@ -61,6 +62,7 @@ abstract class SingleBookMarkModel(val context: Context) :
         }
         with(bookmark) {
             holder.urlView.text = title
+            holder.checked.isChecked = false
         }
     }
 

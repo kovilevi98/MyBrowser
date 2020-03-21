@@ -1,7 +1,6 @@
 package hu.bme.onlab.mybrowser.history_room
 
 import android.content.Context
-import android.util.Log
 import com.airbnb.epoxy.AsyncEpoxyController
 import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
 
@@ -22,13 +21,11 @@ class SingleHistoryController(val context: Context) : AsyncEpoxyController() {
 
     override fun buildModels() {
         var i: Long = 0
-        Log.e("history meret", historyItems.size.toString())
         historyItems.forEach {
             singleHistory(context) {
                 id(i++)
                 historyItem(it)
             }
-            Log.e("build", i.toString())
         }
     }
 

@@ -11,6 +11,9 @@
     <string name="bookmark">Bookmark</string>
     <string name="private_tab">Private Tab</string>
     <string name="delete_all_ticked">delete All ticked</string>
+    <string name="dateformat">dd/M/yyyy hh:mm:ss</string>
+    <string name="short_by">short</string>
+    <string name="searchbutton">searchButton</string>
     <string name="textview">TextView</string>
 
 </resources>

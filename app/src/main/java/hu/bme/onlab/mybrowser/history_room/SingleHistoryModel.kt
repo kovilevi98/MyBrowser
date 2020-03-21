@@ -6,6 +6,7 @@ import android.view.View
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatImageButton
+import androidx.appcompat.widget.AppCompatTextView
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
@@ -21,11 +22,12 @@ abstract class SingleHistoryModel(val context: Context) :
     @EpoxyAttribute
     lateinit var historyItem: h_b_Entity
 
+
     override fun bind(holder: Holder) {
         super.bind(Holder())
         val controller = SingleHistoryController.ticked_list
 
-        holder.checked.setOnCheckedChangeListener { buttonView, isChecked ->
+        holder.checked.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 with(historyItem) {
                     controller.ticked.add(this)
@@ -38,11 +40,12 @@ abstract class SingleHistoryModel(val context: Context) :
         }
         holder.historydelete.setOnClickListener {
             var new_url: String
+
             with(historyItem) {
                 new_url = this.url
             }
             val dbThread = Thread {
-                var bookmarkdata =
+                val bookmarkdata =
                     HistoryDatabase.getInstance(context).historyDao().getSpecificGrades(new_url)
                 bookmarkdata.forEach {
                     HistoryDatabase.getInstance(context).historyDao().deleteBookMark(it)
@@ -61,6 +64,8 @@ abstract class SingleHistoryModel(val context: Context) :
         }
         with(historyItem) {
             holder.urlView.text = title
+            holder.time.text = time
+            holder.checked.isChecked = false
         }
     }
 
@@ -68,11 +73,13 @@ abstract class SingleHistoryModel(val context: Context) :
         lateinit var urlView: AppCompatButton
         lateinit var checked: AppCompatCheckBox
         lateinit var historydelete: AppCompatImageButton
+        lateinit var time: AppCompatTextView
 
         override fun bindView(itemView: View) {
             urlView = itemView.findViewById(R.id.historyurl)
             checked = itemView.findViewById(R.id.historykchecked)
             historydelete = itemView.findViewById(R.id.histordelete)
+            time = itemView.findViewById(R.id.historyTime)
         }
     }
 }
