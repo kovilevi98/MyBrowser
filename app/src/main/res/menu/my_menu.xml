@@ -41,5 +41,9 @@
         android:title="@string/private_tab"
         app:showAsAction="ifRoom"
         />
+    <item
+        android:id="@+id/close"
+        android:title="@string/close_current_tab"
+        app:showAsAction="ifRoom" />
 
 </menu>

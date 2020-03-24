@@ -15,22 +15,35 @@
         layout="@layout/toolbar"
         />
 
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_light"
+        app:tabTextColor="@android:color/background_light"></com.google.android.material.tabs.TabLayout>
+
     <com.baoyz.widget.PullRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-        <WebView
-            android:id="@+id/webView"
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:layout_constraintTop_toBottomOf="@+id/tabLayout">
 
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            />
+            <WebView
+                android:id="@+id/webView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+        </androidx.viewpager.widget.ViewPager>
     </com.baoyz.widget.PullRefreshLayout>
 
 </LinearLayout>
@@ -55,24 +68,7 @@
         app:itemTextColor="@color/icons"
         app:menu="@menu/navigation"
         />
-        <!--    <me.ibrahimsn.lib.SmoothBottomBar
-                 android:id="@+id/bottomBar"
-             android:layout_width="match_parent"
-             android:layout_height="70dp"
-             app:backgroundColor="@color/colorPrimary"
-             app:textColor="@color/icons"
-             app:textSize="14sp"
-             app:iconSize="24dp"
-             app:indicatorColor="#2DFFFFFF"
 
-             app:sideMargins="10dp"
-             app:itemPadding="10dp"
-             app:iconTint="#C8FFFFFF"
-             app:iconTintActive="#FFFFFF"
-             app:menu="@menu/botton_menu"
-             app:layout_constraintBottom_toBottomOf="parent"/>
-
-       -->
     </FrameLayout>
 
 

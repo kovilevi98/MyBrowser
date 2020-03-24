@@ -32,7 +32,6 @@
             android:name=".history_room.HistoryActivity"
             android:noHistory="true"
             android:parentActivityName=".WebViewActivity" />
-        <activity android:name=".tabs.TabsActivity" />
     </application>
 
 </manifest>

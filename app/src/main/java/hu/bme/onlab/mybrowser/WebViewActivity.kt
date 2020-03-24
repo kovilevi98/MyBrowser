@@ -6,10 +6,12 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
-import android.view.*
-import android.webkit.*
-import android.widget.EditText
-import android.widget.FrameLayout
+import android.util.Log
+import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.webkit.WebBackForwardList
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
@@ -18,12 +20,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.tabs.TabLayout
 import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkActivity
 import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkDatabase
 import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
 import hu.bme.onlab.mybrowser.history_room.HistoryActivity
 import hu.bme.onlab.mybrowser.history_room.HistoryDatabase
+import hu.bme.onlab.mybrowser.tabs.MyAdapter
+import hu.bme.onlab.mybrowser.tabs.MyWebView_
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.toolbar.view.*
 import java.text.SimpleDateFormat
@@ -45,14 +51,48 @@ class WebViewActivity : AppCompatActivity() {
     private var filledStar = false
     private var list: List<h_b_Entity>? = null
 
+    var tabLayout: TabLayout? = null
+    var viewPager: ViewPager? = null
+    lateinit var adapter: MyAdapter
+    var tabsCount = 6
+    lateinit var tabs: MutableList<MyWebView_>
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
 
-        val newstarturl: String? = intent.getStringExtra("newUrl")
-        if (newstarturl != null)
-            startPage = newstarturl
+        tabs = mutableListOf()
+        tabLayout = findViewById<TabLayout>(R.id.tabLayout)
+        viewPager = findViewById<ViewPager>(R.id.viewPager)
+        //viewPager.offscreenPageLimit
+        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+
+
+        adapter = MyAdapter(this, supportFragmentManager, tabsCount, tabs)
+        viewPager!!.adapter = adapter
+
+        viewPager!!.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
+
+        tabLayout!!.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                viewPager!!.currentItem = tab.position
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {
+
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab) {
+
+            }
+        })
+        viewPager!!.offscreenPageLimit = tabs.size
+
         db = BookMarkDatabase.getInstance(this)
         dbhistory = HistoryDatabase.getInstance(this)
 
@@ -67,36 +107,36 @@ class WebViewActivity : AppCompatActivity() {
         fullscreen.visibility = View.GONE
 
         refresh()
-        initWebView()
+        //initWebView()
 
-        webView.loadUrl(startPage)
+        //webView.loadUrl(startPage)
         toolbar.searchbutton.setOnClickListener {
             val url = toolbar.url.text.toString()
             createurl(url)
-            webView.loadUrl(URL)
+            adapter.tabs[viewPager!!.currentItem].setUrl(URL)
             toolbar.url.setText(URL)
         }
 
         navigation.setOnNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.back -> {
-                    if (webView.canGoBack())
-                        webView.goBack()
-                    URL = webView.url
+                    if (adapter.tabs[viewPager!!.currentItem].canGoBack())
+                        adapter.tabs[viewPager!!.currentItem].goBack()
+                    URL = adapter.tabs[viewPager!!.currentItem].getUrl()
                     toolbar.url.setText(URL)
                     true
                 }
                 R.id.forward -> {
-                    if (webView.canGoForward())
-                        webView.goForward()
-                    URL = webView.url
+                    if (adapter.tabs[viewPager!!.currentItem].canGoForward())
+                        adapter.tabs[viewPager!!.currentItem].goForward()
+                    URL = adapter.tabs[viewPager!!.currentItem].getUrl()
                     toolbar.url.setText(URL)
                     true
                 }
                 R.id.refresh -> {
-                    webView.reload()
+                    adapter.tabs[viewPager!!.currentItem].reload()
                     toolbar.url.setText(URL)
-                    URL = webView.url
+                    URL = adapter.tabs[viewPager!!.currentItem].getUrl()
                     true
                 }
                 else -> false
@@ -107,95 +147,27 @@ class WebViewActivity : AppCompatActivity() {
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                 val url = toolbar.url.text.toString()
                 createurl(url)
-                webView.loadUrl(URL)
+                adapter.tabs[viewPager!!.currentItem].loadUrl(URL)
                 toolbar.url.setText(URL)
                 return@OnKeyListener true
             }
             false
         })
 
-
-        webView.setOnTouchListener(object : View.OnTouchListener {
-            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                when (event?.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        URL = webView.url
-                        toolbar.url.setText(URL)
-                    }
-                }
-
-                return v?.onTouchEvent(event) ?: true
-            }
-        })
-
         getBookMarks().observe(this, Observer {
             starCheck_LOCAL(it)
             list = it
+            adapter.tabs[viewPager!!.currentItem].setList(list)
         })
-    }
-
-    private fun initWebView() {
-        webView.settings.setSupportZoom(false)
-        webView.webViewClient = WebViewClient()
-        webView.settings.javaScriptEnabled = true
-        webView.settings.javaScriptCanOpenWindowsAutomatically = true
-        webView.settings.pluginState = WebSettings.PluginState.ON_DEMAND
-        webView.settings.mediaPlaybackRequiresUserGesture = false
-        //webView.getSettings().setMediaPlaybackRequiresUserGesture(false)
-        webView.webChromeClient = WebChromeClient()
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                //       endLoaderAnimate()
-                list?.let { starCheck_LOCAL(it) }
-            }
-
-            override fun onReceivedError(
-                view: WebView?,
-                request: WebResourceRequest?,
-                error: WebResourceError?
-            ) {
-                super.onReceivedError(view, request, error)
-                //endLoaderAnimate()
-                showErrorDialog(
-                    "Error",
-                    "No internet connection. Please check your connection.",
-                    this@WebViewActivity
-                )
-            }
-        }
-        webView.webChromeClient = object : WebChromeClient() {
-            override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
-                super.onShowCustomView(view, callback)
-
-                if (view is FrameLayout) {
-                    fullscreenView = view
-                    fullscreen.addView(fullscreenView)
-                    fullscreen.visibility = View.VISIBLE
-                    root_layout.visibility = View.GONE
-                    navigation.visibility = View.INVISIBLE
-                }
-
-            }
-
-            override fun onHideCustomView() {
-                super.onHideCustomView()
-                fullscreen.removeView(fullscreenView)
-                fullscreen.visibility = View.GONE
-                root_layout.visibility = View.VISIBLE
-                navigation.visibility = View.VISIBLE
-            }
-        }
-        toolbar.url.setText(URL)
-        val et = findViewById<EditText>(R.id.url)
-        et.setSelection(et.text.length)
     }
 
     private fun refresh() {
         swipeRefreshLayout.setOnRefreshListener {
-            webView.reload()
+            adapter.tabs[viewPager!!.currentItem].reload()
             swipeRefreshLayout.setRefreshing(false)
         }
     }
+
 
     private fun createurl(url: String) {
         if (url.take(3) == "www" || url.take(3) == "WWW")
@@ -222,31 +194,29 @@ class WebViewActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.star -> {
-            val currenturl = webView.url.toString()
-            // insertBookmark(BookMarkEntity(currenturl,LocalDateTime.now().toString()))
+            val currenturl = adapter.tabs[viewPager!!.currentItem].getUrl()
             if (!filledStar) {
                 insertBookmark(
                     h_b_Entity(
                         currenturl,
                         LocalDateTime.now().toString(),
-                        webView.title
+                        adapter.tabs[viewPager!!.currentItem].getTitle()
                     )
                 )
-                //menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_action_star_10))
                 starChanger(1,R.drawable.ic_action_star_10)
             } else {
                 val list = getBookMark(currenturl)
-                //menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_star_0))
                 starChanger(1,R.drawable.ic_star_0)
                 for (i in list)
                     deleteBookMark(i)
             }
-            refresh()
             true
         }
         R.id.tabs -> {
-            // User chose the "Print" item
-            Toast.makeText(this, "tabs", Toast.LENGTH_LONG).show()
+            tabLayout!!.addTab(tabLayout!!.newTab().setText(tabsCount.toString()))
+            tabsCount++
+            viewPager!!.offscreenPageLimit = tabs.size
+            Toast.makeText(this, "new tab", Toast.LENGTH_LONG).show()
             true
         }
 
@@ -261,21 +231,29 @@ class WebViewActivity : AppCompatActivity() {
             startActivity(intent)
             true
         }
+        R.id.Cookie -> {
+            tabLayout!!.getTabAt(0)?.let { tabLayout!!.removeTab(it) }
+            Toast.makeText(this, "tab removed", Toast.LENGTH_LONG).show()
+            true
+        }
+        R.id.close -> {
+            /* tabs.removeAt(viewPager!!.currentItem)
+             adapter.notifyDataSetChanged();*/
+            Log.e("tab", viewPager!!.currentItem.toString())
+            true
+        }
         android.R.id.home -> {
             Toast.makeText(this, "Home action", Toast.LENGTH_LONG).show()
             true
         }
 
         else -> {
-            // If we got here, the user's action was not recognized.
-            // Invoke the superclass to handle it.
             super.onOptionsItemSelected(item)
         }
     }
 
     override fun onResume() {
         super.onResume()
-
         if (isAlreadyCreated && !isNetworkAvailable()) {
             isAlreadyCreated = false
             showErrorDialog(
@@ -289,13 +267,12 @@ class WebViewActivity : AppCompatActivity() {
         val connectionManager =
             this@WebViewActivity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectionManager.activeNetworkInfo
-
         return networkInfo != null && networkInfo.isConnectedOrConnecting
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
-            webView.goBack()
+        if (keyCode == KeyEvent.KEYCODE_BACK && adapter.tabs[viewPager!!.currentItem].canGoBack()) {
+            adapter.tabs[viewPager!!.currentItem].goBack()
             return true
         }
         return super.onKeyDown(keyCode, event)
@@ -343,20 +320,17 @@ class WebViewActivity : AppCompatActivity() {
     }
 
 
-    private fun starCheck_LOCAL(list: List<h_b_Entity>) {
-        val currenturl = webView.url.toString()
+    fun starCheck_LOCAL(list: List<h_b_Entity>) {
+        val currenturl = adapter.tabs[viewPager!!.currentItem].getUrl()
         var new = true
-        //Log.e("meret", list.size.toString())
         for (i in list) {
             if (i.url == currenturl)
                 new = false
         }
         if (!new) {
             starChanger(1,R.drawable.ic_action_star_10)
-            //menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_action_star_10))
             filledStar = true
         } else {
-            //menu?.getItem(1)?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_star_0))
             starChanger(1,R.drawable.ic_star_0)
             filledStar = false
         }
@@ -367,7 +341,8 @@ class WebViewActivity : AppCompatActivity() {
 
     @SuppressLint("SimpleDateFormat")
     fun getBackForwardList() {
-        val currentList: WebBackForwardList = webView.copyBackForwardList()
+        val currentList: WebBackForwardList =
+            adapter.tabs[viewPager!!.currentItem].copyBackForwardList()
         val currentSize = currentList.size
         for (i in 0 until currentSize) {
             val item = currentList.getItemAtIndex(i)
@@ -377,6 +352,28 @@ class WebViewActivity : AppCompatActivity() {
             val tmp = h_b_Entity(item.url, currentDate, item.title)
             insertHistory(tmp)
         }
+    }
 
+    fun setText(url: String) {
+        toolbar.url.setText(url)
+    }
+
+    fun setVideo(view: View) {
+        fullscreenView = view
+        fullscreen.addView(fullscreenView)
+        fullscreen.visibility = View.VISIBLE
+        root_layout.visibility = View.GONE
+        navigation.visibility = View.INVISIBLE
+    }
+
+    fun removeVideo() {
+        fullscreen.removeView(fullscreenView)
+        fullscreen.visibility = View.GONE
+        root_layout.visibility = View.VISIBLE
+        navigation.visibility = View.VISIBLE
+    }
+
+    fun setTabText(title: String) {
+        tabLayout!!.getTabAt(viewPager!!.currentItem)?.text = title
     }
 }
