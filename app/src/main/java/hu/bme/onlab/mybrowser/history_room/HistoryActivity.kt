@@ -1,5 +1,7 @@
 package hu.bme.onlab.mybrowser.history_room
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
@@ -12,7 +14,7 @@ import kotlinx.android.synthetic.main.activity_history.*
 class HistoryActivity : AppCompatActivity() {
 
     private var bottomNavigation: BottomNavigationView? = null
-    val controller = SingleHistoryController(this)
+    val controller = SingleHistoryController(this, this)
     val ticked = SingleHistoryController.ticked_list.ticked
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,4 +68,10 @@ class HistoryActivity : AppCompatActivity() {
         controller.requestModelBuild()
     }
 
+    fun finished(s: String) {
+        val intent = Intent()
+        intent.putExtra("MESSAGE", s)
+        setResult(Activity.RESULT_OK, intent)
+        finish() //finishing activity
+    }
 }

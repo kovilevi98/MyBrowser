@@ -1,6 +1,7 @@
 package hu.bme.onlab.mybrowser
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -54,27 +55,38 @@ class WebViewActivity : AppCompatActivity() {
     var tabLayout: TabLayout? = null
     var viewPager: ViewPager? = null
     lateinit var adapter: MyAdapter
-    var tabsCount = 6
-    lateinit var tabs: MutableList<MyWebView_>
+    var tabsCount = 3
+    var tabs: MutableList<MyWebView_> = mutableListOf()
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
 
-        tabs = mutableListOf()
+        val ss = intent.getStringExtra("newUrl")
+        if (ss != null) {
+            val temp = MyWebView_()
+            temp.setUrl(ss)
+            tabs.add(temp)
+
+            tabLayout!!.addTab(tabLayout!!.newTab().setText(temp.getTitle()))
+        }
+
+
         tabLayout = findViewById<TabLayout>(R.id.tabLayout)
         viewPager = findViewById<ViewPager>(R.id.viewPager)
         //viewPager.offscreenPageLimit
         tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
         tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
         tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
-        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
-        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
-        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+        tabs.add(MyWebView_())
+        tabs.add(MyWebView_())
+        tabs.add(MyWebView_())
 
 
         adapter = MyAdapter(this, supportFragmentManager, tabsCount, tabs)
         viewPager!!.adapter = adapter
+
+
 
         viewPager!!.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
 
@@ -213,7 +225,9 @@ class WebViewActivity : AppCompatActivity() {
             true
         }
         R.id.tabs -> {
-            tabLayout!!.addTab(tabLayout!!.newTab().setText(tabsCount.toString()))
+            tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+            tabs.add(MyWebView_())
+            adapter.notifyDataSetChanged()
             tabsCount++
             viewPager!!.offscreenPageLimit = tabs.size
             Toast.makeText(this, "new tab", Toast.LENGTH_LONG).show()
@@ -222,13 +236,13 @@ class WebViewActivity : AppCompatActivity() {
 
         R.id.Bookmark -> {
             val intent = Intent(this, BookMarkActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, 1)
             true
         }
         R.id.history -> {
             getBackForwardList()
             val intent = Intent(this, HistoryActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, 1)
             true
         }
         R.id.Cookie -> {
@@ -237,6 +251,10 @@ class WebViewActivity : AppCompatActivity() {
             true
         }
         R.id.close -> {
+            /* tabLayout?.removeTabAt(tabLayout!!.selectedTabPosition)
+             tabs.removeAt(viewPager!!.currentItem)
+             adapter.notifyDataSetChanged()
+             tabsCount--*/
             /* tabs.removeAt(viewPager!!.currentItem)
              adapter.notifyDataSetChanged();*/
             Log.e("tab", viewPager!!.currentItem.toString())
@@ -375,5 +393,22 @@ class WebViewActivity : AppCompatActivity() {
 
     fun setTabText(title: String) {
         tabLayout!!.getTabAt(viewPager!!.currentItem)?.text = title
+    }
+
+    fun setScroll(b: Boolean) {
+        swipeRefreshLayout.isEnabled = b
+    }
+
+    fun setCurrentUrl(string: String) {
+        adapter.tabs[viewPager!!.currentItem].setUrl(string)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            val geturl = data!!.extras?.get("MESSAGE").toString()
+            setCurrentUrl(geturl)
+        }
+
     }
 }

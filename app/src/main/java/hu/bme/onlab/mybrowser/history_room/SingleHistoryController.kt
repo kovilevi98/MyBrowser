@@ -4,7 +4,8 @@ import android.content.Context
 import com.airbnb.epoxy.AsyncEpoxyController
 import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
 
-class SingleHistoryController(val context: Context) : AsyncEpoxyController() {
+class SingleHistoryController(val context: Context, val activity: HistoryActivity) :
+    AsyncEpoxyController() {
 
     var historyItems: MutableList<h_b_Entity> = mutableListOf()
         set(value) {
@@ -22,7 +23,7 @@ class SingleHistoryController(val context: Context) : AsyncEpoxyController() {
     override fun buildModels() {
         var i: Long = 0
         historyItems.forEach {
-            singleHistory(context) {
+            singleHistory(context, activity = activity) {
                 id(i++)
                 historyItem(it)
             }

@@ -1,7 +1,6 @@
 package hu.bme.onlab.mybrowser.history_room
 
 import android.content.Context
-import android.content.Intent
 import android.view.View
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatCheckBox
@@ -12,11 +11,10 @@ import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
 import hu.bme.onlab.mybrowser.R
-import hu.bme.onlab.mybrowser.WebViewActivity
 import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
 
 @EpoxyModelClass(layout = R.layout.singlehistory)
-abstract class SingleHistoryModel(val context: Context) :
+abstract class SingleHistoryModel(val context: Context, val activity: HistoryActivity) :
     EpoxyModelWithHolder<SingleHistoryModel.Holder>() {
 
     @EpoxyAttribute
@@ -58,9 +56,7 @@ abstract class SingleHistoryModel(val context: Context) :
             with(historyItem) {
                 new_url = this.url
             }
-            val intent = Intent(context, WebViewActivity::class.java)
-            intent.putExtra("newUrl", new_url)
-            context.startActivity(intent)
+            (activity).finished(new_url)
         }
         with(historyItem) {
             holder.urlView.text = title

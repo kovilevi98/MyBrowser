@@ -1,7 +1,6 @@
 package hu.bme.onlab.mybrowser.bookmarks__room
 
 import android.content.Context
-import android.content.Intent
 import android.view.View
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatCheckBox
@@ -11,11 +10,10 @@ import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
 import hu.bme.onlab.mybrowser.R
-import hu.bme.onlab.mybrowser.WebViewActivity
 
 
 @EpoxyModelClass(layout = R.layout.singlebookmark)
-abstract class SingleBookMarkModel(val context: Context) :
+abstract class SingleBookMarkModel(val context: Context, val activity: BookMarkActivity) :
     EpoxyModelWithHolder<SingleBookMarkModel.Holder>() {
 
     @EpoxyAttribute
@@ -24,7 +22,6 @@ abstract class SingleBookMarkModel(val context: Context) :
     override fun bind(holder: Holder) {
         super.bind(Holder())
         val controller = SingleBookMakrController.ticked_list
-
         holder.checked.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 with(bookmark) {
@@ -44,7 +41,6 @@ abstract class SingleBookMarkModel(val context: Context) :
             val dbThread = Thread {
                 val bookmarkdata =
                     BookMarkDatabase.getInstance(context).bookMarkDao().getSpecificGrades(new_url)
-                //Log.e("ennyi",bookmarkdata.size.toString())
                 bookmarkdata.forEach {
                     BookMarkDatabase.getInstance(context).bookMarkDao().deleteBookMark(it)
                 }
@@ -56,9 +52,7 @@ abstract class SingleBookMarkModel(val context: Context) :
             with(bookmark) {
                 new_url = this.url
             }
-            val intent = Intent(context, WebViewActivity::class.java)
-            intent.putExtra("newUrl", new_url)
-            context.startActivity(intent)
+            (activity).finished(new_url)
         }
         with(bookmark) {
             holder.urlView.text = title

@@ -1,5 +1,6 @@
 package hu.bme.onlab.mybrowser.tabs
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -12,6 +13,7 @@ import hu.bme.onlab.mybrowser.R
 import hu.bme.onlab.mybrowser.WebViewActivity
 import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
 import kotlinx.android.synthetic.main.fragment_webview.*
+
 
 class MyWebView_ : Fragment() {
     val startPage = "https://www.google.com/"
@@ -31,6 +33,7 @@ class MyWebView_ : Fragment() {
         initWebView()
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView() {
         webView.settings.setSupportZoom(false)
         webView.webViewClient = WebViewClient()
@@ -66,7 +69,13 @@ class MyWebView_ : Fragment() {
             }
         }
 
-
+        webView.viewTreeObserver.addOnScrollChangedListener {
+            if (webView.scrollY < 50 && webView.scrollY != 0) {
+                (activity as WebViewActivity).setScroll(true)
+            } else if (webView.scrollY != 0) {
+                (activity as WebViewActivity).setScroll(false)
+            }
+        }
         webView.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 when (event?.action) {

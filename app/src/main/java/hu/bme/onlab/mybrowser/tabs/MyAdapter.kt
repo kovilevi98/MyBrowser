@@ -7,20 +7,20 @@ import androidx.fragment.app.FragmentPagerAdapter
 
 
 class MyAdapter(
-    private val myContext: Context, fm: FragmentManager, private var totalTabs: Int,
+    private val myContext: Context,
+    fm: FragmentManager,
+    private var totalTabs: Int,
     var tabs: MutableList<MyWebView_>
 ) : FragmentPagerAdapter(fm) {
 
 
     // this is for fragment tabs
     override fun getItem(position: Int): Fragment {
-        val tmp = MyWebView_()
-        tabs.add(tmp)
-        return tmp
+        return tabs[position]
     }
 
     // this counts total number of tabs
     override fun getCount(): Int {
-        return totalTabs
+        return tabs.size
     }
 }
