@@ -71,22 +71,18 @@ class WebViewActivity : AppCompatActivity() {
             tabLayout!!.addTab(tabLayout!!.newTab().setText(temp.getTitle()))
         }
 
-
         tabLayout = findViewById<TabLayout>(R.id.tabLayout)
         viewPager = findViewById<ViewPager>(R.id.viewPager)
-        //viewPager.offscreenPageLimit
-        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
-        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
-        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
-        tabs.add(MyWebView_())
-        tabs.add(MyWebView_())
-        tabs.add(MyWebView_())
 
+        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+        tabs.add(MyWebView_())
+        tabs.add(MyWebView_())
+        tabs.add(MyWebView_())
 
         adapter = MyAdapter(this, supportFragmentManager, tabsCount, tabs)
         viewPager!!.adapter = adapter
-
-
 
         viewPager!!.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
 
@@ -108,20 +104,14 @@ class WebViewActivity : AppCompatActivity() {
         db = BookMarkDatabase.getInstance(this)
         dbhistory = HistoryDatabase.getInstance(this)
 
-        //db.bookMarkDao().insertBookMark(BookMarkEntity("asd","sad"))*/
-
         setSupportActionBar(findViewById(R.id.toolbar))
         bottomNavigation = findViewById(R.id.navigation)
 
-
-        // startLoaderAnimate()
         root_layout.visibility = View.VISIBLE
         fullscreen.visibility = View.GONE
 
         refresh()
-        //initWebView()
 
-        //webView.loadUrl(startPage)
         toolbar.searchbutton.setOnClickListener {
             val url = toolbar.url.text.toString()
             createurl(url)
@@ -230,6 +220,7 @@ class WebViewActivity : AppCompatActivity() {
             adapter.notifyDataSetChanged()
             tabsCount++
             viewPager!!.offscreenPageLimit = tabs.size
+
             Toast.makeText(this, "new tab", Toast.LENGTH_LONG).show()
             true
         }
@@ -251,20 +242,27 @@ class WebViewActivity : AppCompatActivity() {
             true
         }
         R.id.close -> {
-            /* tabLayout?.removeTabAt(tabLayout!!.selectedTabPosition)
-             tabs.removeAt(viewPager!!.currentItem)
-             adapter.notifyDataSetChanged()
-             tabsCount--*/
-            /* tabs.removeAt(viewPager!!.currentItem)
-             adapter.notifyDataSetChanged();*/
-            Log.e("tab", viewPager!!.currentItem.toString())
+            if (viewPager!!.currentItem == 0) {
+                Toast.makeText(
+                    this,
+                    "This is the main tab you can not close this",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else if (tabs.size > 1) {
+                tabLayout?.removeTabAt(tabLayout!!.selectedTabPosition)
+                tabs.removeAt(viewPager!!.currentItem)
+                adapter.notifyDataSetChanged()
+                tabsCount--
+                viewPager!!.offscreenPageLimit = tabsCount
+                Log.e("tabok szama", tabsCount.toString())
+                Toast.makeText(this, "Tabs closed", Toast.LENGTH_LONG).show()
+            } else Toast.makeText(this, "This is the last tab", Toast.LENGTH_LONG).show()
             true
         }
         android.R.id.home -> {
             Toast.makeText(this, "Home action", Toast.LENGTH_LONG).show()
             true
         }
-
         else -> {
             super.onOptionsItemSelected(item)
         }
@@ -409,6 +407,5 @@ class WebViewActivity : AppCompatActivity() {
             val geturl = data!!.extras?.get("MESSAGE").toString()
             setCurrentUrl(geturl)
         }
-
     }
 }

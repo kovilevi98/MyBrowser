@@ -21,10 +21,8 @@ class BookMarkActivity : AppCompatActivity() {
         bottomNavigation = findViewById(R.id.bookmarknav)
         bookmarknav.setOnNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.back -> {
+                R.id.back2 -> {
                     finish()
-                    super.onBackPressed()
-                    this.finish()
                     true
                 }
                 R.id.alldelete -> {

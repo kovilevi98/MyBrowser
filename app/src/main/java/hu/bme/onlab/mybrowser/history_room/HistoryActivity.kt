@@ -23,10 +23,8 @@ class HistoryActivity : AppCompatActivity() {
         bottomNavigation = findViewById(R.id.bookmarknav_history)
         bookmarknav_history.setOnNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.back -> {
+                R.id.back2 -> {
                     finish()
-                    super.onBackPressed()
-                    this.finish()
                     true
                 }
                 R.id.alldelete -> {
