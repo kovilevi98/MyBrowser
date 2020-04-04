@@ -399,6 +399,9 @@ class WebViewActivity : AppCompatActivity() {
 
     fun setCurrentUrl(string: String) {
         adapter.tabs[viewPager!!.currentItem].setUrl(string)
+        // adapter.tabs[viewPager!!.currentItem].reload()
+        toolbar.url.setText(string)
+        Log.e("currentURL", string)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -406,6 +409,7 @@ class WebViewActivity : AppCompatActivity() {
         if (resultCode == Activity.RESULT_OK) {
             val geturl = data!!.extras?.get("MESSAGE").toString()
             setCurrentUrl(geturl)
+
         }
     }
 }
