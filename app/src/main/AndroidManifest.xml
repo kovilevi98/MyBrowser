@@ -32,6 +32,10 @@
             android:name=".history_room.HistoryActivity"
             android:noHistory="true"
             android:parentActivityName=".WebViewActivity" />
+        <activity
+            android:name=".cookies.CookieActivity"
+            android:noHistory="true"
+            android:parentActivityName=".WebViewActivity" />
     </application>
 
 </manifest>

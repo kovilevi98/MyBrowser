@@ -2,6 +2,7 @@ package hu.bme.onlab.mybrowser.tabs
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -12,12 +13,19 @@ import androidx.fragment.app.Fragment
 import hu.bme.onlab.mybrowser.R
 import hu.bme.onlab.mybrowser.WebViewActivity
 import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
+import hu.bme.onlab.mybrowser.cookies.Cookie_Entity
 import kotlinx.android.synthetic.main.fragment_webview.*
+import net.gotev.cookiestore.removeAll
 
 
 class MyWebView_ : Fragment() {
     val startPage = "https://www.google.com/"
     private var list: List<h_b_Entity>? = null
+    var cookiesfordeleteName: MutableList<String>? = null
+    var cookiesfordeleteValue: MutableList<String>? = null
+    var cookiesTogether: MutableList<String>? = null
+    var goodFacebook: String = ""
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,6 +43,9 @@ class MyWebView_ : Fragment() {
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView() {
+        cookiesfordeleteName = mutableListOf()
+        cookiesfordeleteValue = mutableListOf()
+        cookiesTogether = mutableListOf()
         webView.settings.setSupportZoom(false)
         webView.webViewClient = WebViewClient()
         webView.settings.javaScriptEnabled = true
@@ -42,11 +53,46 @@ class MyWebView_ : Fragment() {
         webView.settings.pluginState = WebSettings.PluginState.ON_DEMAND
         webView.settings.mediaPlaybackRequiresUserGesture = false
         //webView.getSettings().setMediaPlaybackRequiresUserGesture(false)
+        CookieSyncManager.getInstance().startSync()
+        val cookieManager = CookieManager.getInstance()
+        cookieManager.setAcceptCookie(true)
+        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
+
         webView.loadUrl(startPage)
         webView.webChromeClient = WebChromeClient()
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
-                //       endLoaderAnimate()
+
+                val cookies = CookieManager.getInstance().getCookie(url)
+                if (cookies != null) {
+                    Log.e("cookies in a string:", cookies)
+                    val temp = cookies.split(";").toTypedArray()
+
+                    temp.forEach {
+                        val tempcookie = it.split("=")
+                        if (tempcookie.size > 1) {
+                            val tempCookieEntity =
+                                Cookie_Entity(tempcookie[0], webView.url, tempcookie[1])
+                            if (webView.title == "FACEBOOK" || webView.url == "https://m.facebook.com/") {
+                                //Log.e(cookiesfordeleteName?.size.toString(),tempcookie[0]+"="+tempcookie[1])
+                                cookiesTogether?.add(tempcookie[0] + "=" + tempcookie[1])
+                                cookiesfordeleteName?.add(tempcookie[0])
+                                cookiesfordeleteValue?.add(tempcookie[1])
+                                goodFacebook = webView.url
+                            }
+                            (activity as WebViewActivity).insertCookie(tempCookieEntity)
+                            // Log.e((activity as WebViewActivity).getCookies().size.toString()," a meret")
+                        }
+
+
+                    }
+                }
+
+
+                /*val cookieManager = WebKitSyncCookieManager(
+                    createCookieStore(name = "myCookies", persistent = true),
+                    CookiePolicy.ACCEPT_ALL
+                )*/
                 (activity as WebViewActivity).setText(webView.url)
                 (activity as WebViewActivity).setTabText(webView.title)
                 list?.let { (activity as WebViewActivity).starCheck_LOCAL(it) }
@@ -91,6 +137,20 @@ class MyWebView_ : Fragment() {
         })
     }
 
+    fun list() {
+        val tmp = CookieManager.getInstance()
+        cookiesTogether?.forEach {
+            Log.e("", it)
+        }
+        cookiesfordeleteName?.forEach {
+            tmp.setCookie("https://m.facebook.com/", it + "= ")
+            Log.e("namek", it)
+        }
+
+        /* cookiesTogether?.forEach{
+             tmp.setCookie("https://m.facebook.com/",it)
+         }*/
+    }
 
     fun setUrl(url: String) {
         webView.loadUrl(url)
@@ -135,4 +195,10 @@ class MyWebView_ : Fragment() {
     fun setList(list: List<h_b_Entity>?) {
         this.list = list
     }
+
+    fun deleteAllCookies() {
+        CookieManager.getInstance().removeAll()
+    }
+
+
 }

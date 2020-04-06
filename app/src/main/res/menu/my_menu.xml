@@ -45,5 +45,14 @@
         android:id="@+id/close"
         android:title="@string/close_current_tab"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/allcookiesdelete"
+        android:title="deleteAllCookies"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/openCookieActivity"
+        android:title="cookieActivity"
+        app:showAsAction="ifRoom" />
+
 
 </menu>

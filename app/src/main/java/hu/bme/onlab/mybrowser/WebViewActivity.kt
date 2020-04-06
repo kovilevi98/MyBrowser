@@ -27,6 +27,9 @@ import com.google.android.material.tabs.TabLayout
 import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkActivity
 import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkDatabase
 import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
+import hu.bme.onlab.mybrowser.cookies.CookieActivity
+import hu.bme.onlab.mybrowser.cookies.CookieDatabase
+import hu.bme.onlab.mybrowser.cookies.Cookie_Entity
 import hu.bme.onlab.mybrowser.history_room.HistoryActivity
 import hu.bme.onlab.mybrowser.history_room.HistoryDatabase
 import hu.bme.onlab.mybrowser.tabs.MyAdapter
@@ -48,6 +51,7 @@ class WebViewActivity : AppCompatActivity() {
     private var bottomNavigation: BottomNavigationView? = null
     lateinit var db: BookMarkDatabase
     lateinit var dbhistory: HistoryDatabase
+    lateinit var dbCookies: CookieDatabase
     private var menu: Menu? = null
     private var filledStar = false
     private var list: List<h_b_Entity>? = null
@@ -103,6 +107,7 @@ class WebViewActivity : AppCompatActivity() {
 
         db = BookMarkDatabase.getInstance(this)
         dbhistory = HistoryDatabase.getInstance(this)
+        dbCookies = CookieDatabase.getInstance(this)
 
         setSupportActionBar(findViewById(R.id.toolbar))
         bottomNavigation = findViewById(R.id.navigation)
@@ -237,8 +242,22 @@ class WebViewActivity : AppCompatActivity() {
             true
         }
         R.id.Cookie -> {
-            tabLayout!!.getTabAt(0)?.let { tabLayout!!.removeTab(it) }
-            Toast.makeText(this, "tab removed", Toast.LENGTH_LONG).show()
+            adapter.tabs[viewPager!!.currentItem].list()
+            Toast.makeText(this, "delete special cookies", Toast.LENGTH_LONG).show()
+            true
+        }
+        R.id.allcookiesdelete -> {
+            adapter.tabs[viewPager!!.currentItem].deleteAllCookies()
+            val all = getCookies()
+            all.forEach {
+                deleteCookie(it)
+            }
+            Toast.makeText(this, "delete cookies", Toast.LENGTH_LONG).show()
+            true
+        }
+        R.id.openCookieActivity -> {
+            val intent = Intent(this, CookieActivity::class.java)
+            startActivityForResult(intent, 1)
             true
         }
         R.id.close -> {
@@ -335,6 +354,18 @@ class WebViewActivity : AppCompatActivity() {
         BookMarkDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
     }
 
+    fun insertCookie(Cookie: Cookie_Entity) {
+        CookieDatabase.getInstance(this).cookiedao().insertCookie(Cookie)
+    }
+
+    fun getCookies(): List<Cookie_Entity> {
+        return CookieDatabase.getInstance(this).cookiedao().getCookie()
+    }
+
+    fun deleteCookie(Cookie: Cookie_Entity) {
+        CookieDatabase.getInstance(this).cookiedao().deleteCookie(Cookie)
+    }
+
 
     fun starCheck_LOCAL(list: List<h_b_Entity>) {
         val currenturl = adapter.tabs[viewPager!!.currentItem].getUrl()
@@ -401,7 +432,7 @@ class WebViewActivity : AppCompatActivity() {
         adapter.tabs[viewPager!!.currentItem].setUrl(string)
         // adapter.tabs[viewPager!!.currentItem].reload()
         toolbar.url.setText(string)
-        Log.e("currentURL", string)
+        //Log.e("currentURL", string)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

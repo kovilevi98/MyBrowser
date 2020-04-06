@@ -23,4 +23,5 @@ abstract class BookMarkDatabase() : RoomDatabase() {
                 return instance!!
             }
         }
+
 }
