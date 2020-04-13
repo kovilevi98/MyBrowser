@@ -39,6 +39,7 @@ class MyWebView_ : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as WebViewActivity).setText(startPage)
         initWebView()
+        addRefreshListener()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -115,13 +116,7 @@ class MyWebView_ : Fragment() {
             }
         }
 
-        webView.viewTreeObserver.addOnScrollChangedListener {
-            if (webView.scrollY < 50 && webView.scrollY != 0) {
-                (activity as WebViewActivity).setScroll(true)
-            } else if (webView.scrollY != 0) {
-                (activity as WebViewActivity).setScroll(false)
-            }
-        }
+
         webView.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 when (event?.action) {
@@ -158,6 +153,7 @@ class MyWebView_ : Fragment() {
              tmp.setCookie("https://m.facebook.com/",it)
          }*/
     }
+
 
     fun setUrl(url: String) {
         webView.loadUrl(url)
@@ -207,5 +203,14 @@ class MyWebView_ : Fragment() {
         CookieManager.getInstance().removeAll()
     }
 
+    fun addRefreshListener() {
+        webView.viewTreeObserver.addOnScrollChangedListener {
+            if (webView.scrollY < 50 && webView.scrollY != 0) {
+                (activity as WebViewActivity).setScroll(true)
+            } else if (webView.scrollY != 0) {
+                (activity as WebViewActivity).setScroll(false)
+            }
+        }
+    }
 
 }

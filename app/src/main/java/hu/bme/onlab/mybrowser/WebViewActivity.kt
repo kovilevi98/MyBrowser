@@ -59,7 +59,7 @@ class WebViewActivity : AppCompatActivity() {
     var tabLayout: TabLayout? = null
     var viewPager: ViewPager? = null
     lateinit var adapter: MyAdapter
-    var tabsCount = 3
+    var tabsCount = 1
     var tabs: MutableList<MyWebView_> = mutableListOf()
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,15 +75,17 @@ class WebViewActivity : AppCompatActivity() {
             tabLayout!!.addTab(tabLayout!!.newTab().setText(temp.getTitle()))
         }
 
+
         tabLayout = findViewById<TabLayout>(R.id.tabLayout)
         viewPager = findViewById<ViewPager>(R.id.viewPager)
 
-        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
-        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
-        tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+        tabLayout!!.setupWithViewPager(viewPager)
+        //tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+        //tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+        //tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
         tabs.add(MyWebView_())
-        tabs.add(MyWebView_())
-        tabs.add(MyWebView_())
+        //tabs.add(MyWebView_())
+        //tabs.add(MyWebView_())
 
         adapter = MyAdapter(this, supportFragmentManager, tabsCount, tabs)
         viewPager!!.adapter = adapter
@@ -103,7 +105,7 @@ class WebViewActivity : AppCompatActivity() {
 
             }
         })
-        viewPager!!.offscreenPageLimit = tabs.size
+        viewPager!!.offscreenPageLimit = tabs.size - 1
 
         db = BookMarkDatabase.getInstance(this)
         dbhistory = HistoryDatabase.getInstance(this)
@@ -222,12 +224,15 @@ class WebViewActivity : AppCompatActivity() {
         R.id.tabs -> {
             /*if(tabs.get(tabs.size-1).getUrl()!="https://www.google.com/")
                 tabs.removeAt(tabs.size)*/
-            tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
+            //tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
             tabs.add(MyWebView_())
             adapter.notifyDataSetChanged()
             tabsCount++
             viewPager!!.offscreenPageLimit = tabs.size
+            Log.e("meret", tabs.size.toString())
 
+            refreshTabs()
+            tabLayout!!.getTabAt(tabs.size - 1)?.setText("Google")
             Toast.makeText(this, "new tab", Toast.LENGTH_LONG).show()
             true
         }
@@ -270,17 +275,20 @@ class WebViewActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
             } else if (tabs.size > 1) {
-                tabLayout?.removeTabAt(tabLayout!!.selectedTabPosition)
-                tabs.removeAt(viewPager!!.currentItem)
+                //tabLayout?.removeTabAt(tabLayout!!.selectedTabPosition)
+                viewPager!!.setCurrentItem(0)
                 val removeable = tabLayout!!.selectedTabPosition
+                tabs.removeAt(removeable)
+                adapter.notifyDataSetChanged()
                 tabsCount--
-
-                //viewPager!!.offscreenPageLimit = tabsCount
+                adapter.notifyDataSetChanged()
+                viewPager!!.offscreenPageLimit = tabs.size - 1
                 //viewPager!!.removeViewAt(1)
                 adapter.notifyDataSetChanged()
-                Log.e("tabok szama", tabsCount.toString())
+                Log.e("tabok szama", tabs.size.toString())
                 Toast.makeText(this, "Tabs closed", Toast.LENGTH_LONG).show()
             } else Toast.makeText(this, "This is the last tab", Toast.LENGTH_LONG).show()
+            refreshTabs()
             true
         }
         android.R.id.home -> {
@@ -438,6 +446,13 @@ class WebViewActivity : AppCompatActivity() {
         // adapter.tabs[viewPager!!.currentItem].reload()
         toolbar.url.setText(string)
         //Log.e("currentURL", string)
+    }
+
+    fun refreshTabs() {
+
+        (0 until tabs.size - 1).forEach {
+            tabLayout!!.getTabAt(it)?.setText("init")
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
