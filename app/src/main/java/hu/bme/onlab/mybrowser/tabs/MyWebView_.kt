@@ -142,10 +142,17 @@ class MyWebView_ : Fragment() {
         cookiesTogether?.forEach {
             Log.e("", it)
         }
+        var i = 0
+        //Log.e("halok",cookiesfordeleteName.toString())
         cookiesfordeleteName?.forEach {
+            tmp.setCookie("https://m.facebook.com/", cookiesTogether?.get(i))
+            Log.e("namek", it)
+            i++
+        }
+        /*cookiesfordeleteName?.forEach {
             tmp.setCookie("https://m.facebook.com/", it + "= ")
             Log.e("namek", it)
-        }
+        }*/
 
         /* cookiesTogether?.forEach{
              tmp.setCookie("https://m.facebook.com/",it)

@@ -220,6 +220,8 @@ class WebViewActivity : AppCompatActivity() {
             true
         }
         R.id.tabs -> {
+            /*if(tabs.get(tabs.size-1).getUrl()!="https://www.google.com/")
+                tabs.removeAt(tabs.size)*/
             tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
             tabs.add(MyWebView_())
             adapter.notifyDataSetChanged()
@@ -270,9 +272,12 @@ class WebViewActivity : AppCompatActivity() {
             } else if (tabs.size > 1) {
                 tabLayout?.removeTabAt(tabLayout!!.selectedTabPosition)
                 tabs.removeAt(viewPager!!.currentItem)
-                adapter.notifyDataSetChanged()
+                val removeable = tabLayout!!.selectedTabPosition
                 tabsCount--
-                viewPager!!.offscreenPageLimit = tabsCount
+
+                //viewPager!!.offscreenPageLimit = tabsCount
+                //viewPager!!.removeViewAt(1)
+                adapter.notifyDataSetChanged()
                 Log.e("tabok szama", tabsCount.toString())
                 Toast.makeText(this, "Tabs closed", Toast.LENGTH_LONG).show()
             } else Toast.makeText(this, "This is the last tab", Toast.LENGTH_LONG).show()
