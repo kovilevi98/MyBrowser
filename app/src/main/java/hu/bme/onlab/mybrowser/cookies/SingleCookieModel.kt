@@ -34,20 +34,28 @@ abstract class SingleCookieModel(val context: Context, val activity: CookieActiv
             }
         }
         holder.Cookiekdelete.setOnClickListener {
+
             var new_id: Int
             with(cookie) {
                 new_id = this.id
             }
-
+            var cookieData: List<Cookie_Entity> =
+                CookieDatabase.getInstance(context).cookiedao().getSpecificGradesbyID(new_id)
             val dbThread = Thread {
-                val cookieData =
+                cookieData =
                     CookieDatabase.getInstance(context).cookiedao().getSpecificGradesbyID(new_id)
                 cookieData.forEach {
+                    //Log.e("frfesfe",it.domain.toString())
                     CookieDatabase.getInstance(context).cookiedao().deleteCookie(it)
                 }
             }
             dbThread.start()
+            /*cookieData.forEach {
+                Log.e("frfesfe",it.domain.toString())
+                CookieDatabase.getInstance(context).cookiedao().deleteCookie(it)
+            }*/
         }
+
 
         with(cookie) {
             holder.name.text = this.name

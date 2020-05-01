@@ -36,6 +36,8 @@ import hu.bme.onlab.mybrowser.tabs.MyAdapter
 import hu.bme.onlab.mybrowser.tabs.MyWebView_
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.toolbar.view.*
+import java.net.CookieHandler
+import java.net.CookieManager
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
@@ -43,7 +45,7 @@ import java.util.*
 
 class WebViewActivity : AppCompatActivity() {
 
-
+    var cookieManager = CookieManager()
     lateinit var fullscreenView: View
     private var URL = "https://google.com"
     private var isAlreadyCreated = false
@@ -65,6 +67,9 @@ class WebViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
+
+        cookieManager.cookieStore
+        CookieHandler.setDefault(cookieManager)
 
         val ss = intent.getStringExtra("newUrl")
         if (ss != null) {
@@ -249,7 +254,7 @@ class WebViewActivity : AppCompatActivity() {
             true
         }
         R.id.Cookie -> {
-            adapter.tabs[viewPager!!.currentItem].list()
+
             Toast.makeText(this, "delete special cookies", Toast.LENGTH_LONG).show()
             true
         }
@@ -265,6 +270,10 @@ class WebViewActivity : AppCompatActivity() {
         R.id.openCookieActivity -> {
             val intent = Intent(this, CookieActivity::class.java)
             startActivityForResult(intent, 1)
+            true
+        }
+        R.id.listMyCookies -> {
+            adapter.tabs[viewPager!!.currentItem].testCookieList()
             true
         }
         R.id.close -> {
@@ -367,7 +376,14 @@ class WebViewActivity : AppCompatActivity() {
         BookMarkDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
     }
 
+    //TODO most felurija
     fun insertCookie(Cookie: Cookie_Entity) {
+        val list = getCookies()
+        list.forEach {
+            if (it.domain == Cookie.domain) {
+                deleteCookie(it)
+            }
+        }
         CookieDatabase.getInstance(this).cookiedao().insertCookie(Cookie)
     }
 
@@ -460,7 +476,51 @@ class WebViewActivity : AppCompatActivity() {
         if (resultCode == Activity.RESULT_OK) {
             val geturl = data!!.extras?.get("MESSAGE").toString()
             setCurrentUrl(geturl)
-
+        }
+        if (resultCode == Activity.RESULT_CANCELED) {
+            tabs.forEach {
+                it.refReshCookies(getCookies())
+            }
         }
     }
+
+    override fun onDestroy() {
+        cookieManager.cookieStore.getCookies()
+        var cookieList = cookieManager.cookieStore.getCookies()
+
+        // iterate HttpCookie object
+
+        // iterate HttpCookie object
+        for (cookie in cookieList) {
+            // gets domain set for the cookie
+            println("Domain: " + cookie.domain)
+
+            // gets max age of the cookie
+            println("max age: " + cookie.maxAge)
+
+            // gets name cookie
+            println("name of cookie: " + cookie.name)
+
+            // gets path of the server
+            println("server path: " + cookie.path)
+
+            // gets boolean if cookie is being sent with secure protocol
+            println("is cookie secure: " + cookie.secure)
+
+            // gets the value of the cookie
+            println("value of cookie: " + cookie.value)
+
+            // gets the version of the protocol with which the given cookie is related.
+            println("value of cookie: " + cookie.version)
+            println("")
+        }
+        Log.e("a mostani meret", cookieList.size.toString())
+
+        super.onDestroy()
+    }
+
+    fun getmyCookieManager(): CookieManager {
+        return cookieManager
+    }
+
 }

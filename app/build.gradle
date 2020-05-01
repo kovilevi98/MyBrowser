@@ -69,4 +69,6 @@ dependencies {
     //cookies
     implementation "net.gotev:cookie-store:1.2.2"
 
+    implementation("org.jsoup:jsoup:1.11.3")
+
 }
