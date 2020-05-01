@@ -1,6 +1,7 @@
 package hu.bme.onlab.mybrowser.cookies
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatImageButton
@@ -17,7 +18,7 @@ abstract class SingleCookieModel(val context: Context, val activity: CookieActiv
     EpoxyModelWithHolder<SingleCookieModel.Holder>() {
 
     @EpoxyAttribute
-    lateinit var cookie: Cookie_Entity
+    lateinit var cookie: CookieFields
 
     override fun bind(holder: Holder) {
         super.bind(Holder())
@@ -34,16 +35,12 @@ abstract class SingleCookieModel(val context: Context, val activity: CookieActiv
             }
         }
         holder.Cookiekdelete.setOnClickListener {
-
-            var new_id: Int
-            with(cookie) {
-                new_id = this.id
-            }
-            var cookieData: List<Cookie_Entity> =
-                CookieDatabase.getInstance(context).cookiedao().getSpecificGradesbyID(new_id)
+            Log.e("delete", "delete")
+            var cookieData: List<Cookie_Entity>
             val dbThread = Thread {
                 cookieData =
-                    CookieDatabase.getInstance(context).cookiedao().getSpecificGradesbyID(new_id)
+                    CookieDatabase.getInstance(context).cookiedao()
+                        .getSpecificGrades(cookie.domain_t)
                 cookieData.forEach {
                     //Log.e("frfesfe",it.domain.toString())
                     CookieDatabase.getInstance(context).cookiedao().deleteCookie(it)
@@ -55,12 +52,16 @@ abstract class SingleCookieModel(val context: Context, val activity: CookieActiv
                 CookieDatabase.getInstance(context).cookiedao().deleteCookie(it)
             }*/
         }
+        holder.name.setOnClickListener() {
+            //
+        }
 
 
         with(cookie) {
-            holder.name.text = this.name
-            holder.value.text = this.value
-            holder.domain.text = this.domain
+
+            holder.name.text = this.domain_t
+            holder.value.text = ""
+            holder.domain.text = this.wholeCookie_t
             holder.checked.isChecked = false
         }
     }

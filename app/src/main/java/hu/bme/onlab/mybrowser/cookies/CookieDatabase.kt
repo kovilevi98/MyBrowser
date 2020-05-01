@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 
-private val DATABASE = "cookies.db"
+private val DATABASE = "cookies01.db"
 
 @Database(entities = arrayOf(Cookie_Entity::class), version = 1)
 abstract class CookieDatabase() : RoomDatabase() {

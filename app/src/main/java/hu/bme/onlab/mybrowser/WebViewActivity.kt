@@ -29,6 +29,7 @@ import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkDatabase
 import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
 import hu.bme.onlab.mybrowser.cookies.CookieActivity
 import hu.bme.onlab.mybrowser.cookies.CookieDatabase
+import hu.bme.onlab.mybrowser.cookies.CookieFields
 import hu.bme.onlab.mybrowser.cookies.Cookie_Entity
 import hu.bme.onlab.mybrowser.history_room.HistoryActivity
 import hu.bme.onlab.mybrowser.history_room.HistoryDatabase
@@ -36,8 +37,10 @@ import hu.bme.onlab.mybrowser.tabs.MyAdapter
 import hu.bme.onlab.mybrowser.tabs.MyWebView_
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.toolbar.view.*
+import net.gotev.cookiestore.removeAll
 import java.net.CookieHandler
 import java.net.CookieManager
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
@@ -478,49 +481,38 @@ class WebViewActivity : AppCompatActivity() {
             setCurrentUrl(geturl)
         }
         if (resultCode == Activity.RESULT_CANCELED) {
-            tabs.forEach {
-                it.refReshCookies(getCookies())
+
+            val domainList = getCookies()
+            val newCookieList: MutableList<CookieFields> = mutableListOf()
+            domainList.forEach {
+                if (android.webkit.CookieManager.getInstance().getCookie(it.domain) != null) {
+                    val tmp = CookieFields(
+                        it.domain,
+                        android.webkit.CookieManager.getInstance().getCookie(it.domain)
+                    )
+                    newCookieList.add(tmp)
+                }
+
+            }
+            android.webkit.CookieManager.getInstance().removeAll()
+            newCookieList.forEach {
+                android.webkit.CookieManager.getInstance().setCookie(it.domain_t, it.wholeCookie_t)
             }
         }
     }
 
-    override fun onDestroy() {
-        cookieManager.cookieStore.getCookies()
-        var cookieList = cookieManager.cookieStore.getCookies()
 
-        // iterate HttpCookie object
-
-        // iterate HttpCookie object
-        for (cookie in cookieList) {
-            // gets domain set for the cookie
-            println("Domain: " + cookie.domain)
-
-            // gets max age of the cookie
-            println("max age: " + cookie.maxAge)
-
-            // gets name cookie
-            println("name of cookie: " + cookie.name)
-
-            // gets path of the server
-            println("server path: " + cookie.path)
-
-            // gets boolean if cookie is being sent with secure protocol
-            println("is cookie secure: " + cookie.secure)
-
-            // gets the value of the cookie
-            println("value of cookie: " + cookie.value)
-
-            // gets the version of the protocol with which the given cookie is related.
-            println("value of cookie: " + cookie.version)
-            println("")
+    fun addCookie(uri: URL) {
+        val tmp = Cookie_Entity(uri.host)
+        var used = false
+        CookieDatabase.getInstance(this).cookiedao().getCookie().forEach {
+            if (it.domain == uri.host)
+                used = true
         }
-        Log.e("a mostani meret", cookieList.size.toString())
+        if (!used)
+            CookieDatabase.getInstance(this).cookiedao().insertCookie(tmp)
 
-        super.onDestroy()
-    }
 
-    fun getmyCookieManager(): CookieManager {
-        return cookieManager
     }
 
 }

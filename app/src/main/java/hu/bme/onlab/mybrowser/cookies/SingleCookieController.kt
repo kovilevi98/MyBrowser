@@ -7,19 +7,43 @@ import com.airbnb.epoxy.AsyncEpoxyController
 class SingleCookieController(val context: Context, val activity: CookieActivity) :
     AsyncEpoxyController() {
 
-    var cookieItems: MutableList<Cookie_Entity> = mutableListOf()
+    var cookieItems: MutableList<CookieFields> = mutableListOf()
         set(value) {
             field = value
             requestModelBuild()
         }
 
-    private var db: CookieDatabase
-
     init {
-        db = CookieDatabase.getInstance(context)
-        cookieItems = db.cookiedao().getCookie().toMutableList()
+        val list = CookieDatabase.getInstance(context).cookiedao().getCookie()
+        var result: MutableList<CookieFields> = mutableListOf()
+        list?.forEach {
+            val cookieStr = android.webkit.CookieManager.getInstance()
+                .getCookie(it.domain)
+            //Log.e("az url", it)
+            if (cookieStr != null) {
+                var temp = CookieFields(it.domain, cookieStr)
+                result.add(temp)
+            }
+
+        }
+        cookieItems = result
     }
 
+    fun refresh() {
+        val list = CookieDatabase.getInstance(context).cookiedao().getCookie()
+        var result: MutableList<CookieFields> = mutableListOf()
+        list?.forEach {
+            val cookieStr = android.webkit.CookieManager.getInstance()
+                .getCookie(it.domain)
+            //Log.e("az url", it)
+            if (cookieStr != null) {
+                var temp = CookieFields(it.domain, cookieStr)
+                result.add(temp)
+            }
+
+        }
+        cookieItems = result
+    }
     override fun buildModels() {
         var i: Long = 0
         cookieItems.forEach {
@@ -31,6 +55,6 @@ class SingleCookieController(val context: Context, val activity: CookieActivity)
     }
 
     object ticked_list {
-        var ticked: MutableList<Cookie_Entity> = ArrayList()
+        var ticked: MutableList<CookieFields> = ArrayList()
     }
 }

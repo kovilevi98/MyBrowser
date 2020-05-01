@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment
 import hu.bme.onlab.mybrowser.R
 import hu.bme.onlab.mybrowser.WebViewActivity
 import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
-import hu.bme.onlab.mybrowser.cookies.Cookie_Entity
 import kotlinx.android.synthetic.main.fragment_webview.*
 import net.gotev.cookiestore.removeAll
 import java.net.URL
@@ -66,10 +65,6 @@ class MyWebView_ : Fragment() {
 
                 if (cookies != null) {
                     // Log.e("cookies in a string:", cookies)
-                    //TODO ezt majd torolni
-                    val tempCookieEntity = Cookie_Entity(cookies, webView.url, "")
-                    (activity as WebViewActivity).insertCookie(tempCookieEntity)
-
                 }
                 (activity as WebViewActivity).setText(webView.url)
                 (activity as WebViewActivity).setTabText(webView.title)
@@ -88,6 +83,8 @@ class MyWebView_ : Fragment() {
                     val URI = URL(url)
                     if (!testArray!!.contains(URI.host))
                         testArray!!.add(URI.host)
+
+                    (activity as WebViewActivity).addCookie(URI)
                 }
                 return super.shouldInterceptRequest(view, url)
             }
@@ -193,15 +190,6 @@ class MyWebView_ : Fragment() {
         CookieManager.getInstance().removeAll()
     }
 
-    fun refReshCookies(cookies: List<Cookie_Entity>) {
-        val tmp = CookieManager.getInstance()
-        CookieManager.getInstance().removeAll()
-        cookies?.forEach {
-            tmp.setCookie(it.domain, it.name)
-            Log.e("namek", it.domain)
-        }
-    }
-
 
     fun addRefreshListener() {
         webView.viewTreeObserver.addOnScrollChangedListener {
@@ -223,5 +211,6 @@ class MyWebView_ : Fragment() {
         }
 
     }
+
 
 }

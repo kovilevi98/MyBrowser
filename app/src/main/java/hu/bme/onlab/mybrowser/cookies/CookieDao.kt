@@ -11,7 +11,7 @@ interface CookieDao {
     @Query("Select * from cookie")
     fun getCookie(): List<Cookie_Entity>
 
-    @Query("SELECT * FROM cookie WHERE name = :name")
+    @Query("SELECT * FROM cookie WHERE domain = :name")
     fun getSpecificGrades(name: String): List<Cookie_Entity>
 
     @Query("SELECT * FROM cookie WHERE id = :name")

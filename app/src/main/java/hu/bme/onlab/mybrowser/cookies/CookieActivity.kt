@@ -34,7 +34,7 @@ class CookieActivity : AppCompatActivity() {
 
         recycler_view_cookie.setController(controller)
         getCookies().observe(this, androidx.lifecycle.Observer {
-            controller.cookieItems = it.toMutableList()
+            controller.refresh()
         })
     }
 
@@ -49,11 +49,24 @@ class CookieActivity : AppCompatActivity() {
         dbThread.start()
     }
 
-    fun removeItems(forDelete: List<Cookie_Entity>) {
+    fun removeItems(forDelete: List<CookieFields>) {
+        var deleteList = mutableListOf<Cookie_Entity>()
         forDelete.forEach {
-            controller.cookieItems.remove(it)
-            deleteCookie(it)
+            val temp = Cookie_Entity(it.domain_t)
+            deleteList.add(temp)
         }
+        deleteList.forEach {
+            var cookieData: List<Cookie_Entity>
+            val dbThread = Thread {
+                cookieData =
+                    CookieDatabase.getInstance(this).cookiedao().getSpecificGrades(it.domain_t)
+                cookieData.forEach {
+                    CookieDatabase.getInstance(this).cookiedao().deleteCookie(it)
+                }
+            }
+            dbThread.start()
+        }
+
         controller.requestModelBuild()
     }
 
