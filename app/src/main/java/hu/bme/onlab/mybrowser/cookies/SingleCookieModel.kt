@@ -10,7 +10,7 @@ import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
 import hu.bme.onlab.mybrowser.R
-import hu.bme.onlab.mybrowser.cookies.special.myDialog
+import hu.bme.onlab.mybrowser.cookies.special.MyDialog
 
 
 @EpoxyModelClass(layout = R.layout.singlecookie)
@@ -61,7 +61,7 @@ abstract class SingleCookieModel(val context: Context, val activity: CookieActiv
     }
 
     private fun buildDialog() {
-        val dialog = myDialog(context, cookie)
+        val dialog = MyDialog(context, cookie)
         dialog.show()
     }
 

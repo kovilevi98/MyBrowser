@@ -9,9 +9,9 @@ import hu.bme.onlab.mybrowser.cookies.CookieFields
 import kotlinx.android.synthetic.main.advancecookielayout.*
 import kotlinx.android.synthetic.main.list.recyc
 
-class myDialog(ctx: Context, cookiet: CookieFields) : Dialog(ctx) {
+class MyDialog(ctx: Context, cookiet: CookieFields) : Dialog(ctx) {
     private var cookie = cookiet
-    val specialCookieList: MutableList<specialEntity> = mutableListOf()
+    private val specialCookieList: MutableList<SpecialEntity> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -25,7 +25,7 @@ class myDialog(ctx: Context, cookiet: CookieFields) : Dialog(ctx) {
             if (tmp.size == 2) {
                 // Log.e("name:",tmp.get(0))
                 //Log.e("value",tmp.get(1))
-                specialCookieList.add(specialEntity(tmp[0], tmp[1]))
+                specialCookieList.add(SpecialEntity(tmp[0], tmp[1]))
             }
 
         }
@@ -34,7 +34,7 @@ class myDialog(ctx: Context, cookiet: CookieFields) : Dialog(ctx) {
         }
 
 
-        var adapter = adapter(cookie)
+        val adapter = Adapter(cookie)
         adapter.addAll(specialCookieList)
         recyc.adapter = adapter
         super.onCreate(savedInstanceState)

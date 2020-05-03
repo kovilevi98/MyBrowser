@@ -13,10 +13,10 @@ import kotlinx.android.synthetic.main.row_item.view.*
 import kotlinx.android.synthetic.main.singlecookie.view.CookieValue
 
 
-class adapter(cooki: CookieFields) : RecyclerView.Adapter<adapter.ViewHolder>() {
+class Adapter(cookieField: CookieFields) : RecyclerView.Adapter<Adapter.ViewHolder>() {
 
-    private val list = mutableListOf<specialEntity>()
-    private val wholeCookie = cooki
+    private val list = mutableListOf<SpecialEntity>()
+    private val wholeCookie = cookieField
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -35,13 +35,13 @@ class adapter(cooki: CookieFields) : RecyclerView.Adapter<adapter.ViewHolder>() 
     }
 
 
-    fun addItem(cookie: specialEntity) {
+    fun addItem(cookie: SpecialEntity) {
         val size = list.size
         list.add(cookie)
         notifyItemInserted(size)
     }
 
-    fun addAll(cookies: List<specialEntity>) {
+    fun addAll(cookies: List<SpecialEntity>) {
         val size = list.size
         list += cookies
         notifyItemRangeInserted(size, list.size)
@@ -57,29 +57,26 @@ class adapter(cooki: CookieFields) : RecyclerView.Adapter<adapter.ViewHolder>() 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvName: TextView = itemView.CookieNAme
         val tvValue: TextView = itemView.CookieValue
-        val ibDeleteCookie: ImageButton = itemView.specialCookieDelete
+        private val ibDeleteCookie: ImageButton = itemView.specialCookieDelete
 
         init {
             ibDeleteCookie.setOnClickListener {
-                //itt lehet majd törölni
-                //list[adapterPosition]
-                //deleteRow(adapterPosition)
                 deleteSpecial(list[adapterPosition])
             }
         }
 
-        var cookie: specialEntity? = null
-        fun deleteSpecial(cookie: specialEntity) {
-            var newList: MutableList<specialEntity> = mutableListOf()
+        var cookie: SpecialEntity? = null
+        private fun deleteSpecial(cookie: SpecialEntity) {
+            val newList: MutableList<SpecialEntity> = mutableListOf()
             deleteRow(position)
             val list = wholeCookie.wholeCookie_t.split(";")
             list.forEach {
                 val value = it.split("=")
-                val tmp = specialEntity(value[0], value[1])
+                val tmp = SpecialEntity(value[0], value[1])
                 if (value[0] != cookie.name)
                     newList.add(tmp)
             }
-            var newCookieString: String = ""
+            var newCookieString = ""
             newList.forEach {
                 newCookieString += it.name + "=" + it.value + ";"
             }
