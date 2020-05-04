@@ -47,15 +47,15 @@
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/allcookiesdelete"
-        android:title="deleteAllCookies"
+        android:title="@string/deleteallcookies"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/openCookieActivity"
-        android:title="cookieActivity"
+        android:title="@string/cookieactivity"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/listMyCookies"
-        android:title="listMyCookies"
+        android:title="@string/listmycookies"
         app:showAsAction="ifRoom" />
 
 

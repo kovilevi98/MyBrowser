@@ -8,7 +8,7 @@
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Special Cookies"
+        android:text="@string/special_cookies"
         android:textSize="20sp"
 
         app:layout_constraintEnd_toEndOf="parent"
@@ -25,8 +25,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView">
 
-        <androidx.recyclerview.widget.RecyclerView xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
+        <androidx.recyclerview.widget.RecyclerView xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/recyc"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -53,14 +52,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/testButton"
-            android:text="test"
+            android:text="@string/test"
             android:layout_weight="1" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/okButton"
-            android:text="ok"
+            android:text="@string/ok"
             android:layout_weight="1" />
 
     </LinearLayout>

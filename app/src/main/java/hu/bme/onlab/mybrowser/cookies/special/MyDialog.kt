@@ -8,7 +8,7 @@ import hu.bme.onlab.mybrowser.R
 import hu.bme.onlab.mybrowser.cookies.entities.CookieFields
 import hu.bme.onlab.mybrowser.cookies.entities.SpecialEntity
 import kotlinx.android.synthetic.main.advancecookielayout.*
-import kotlinx.android.synthetic.main.list.recyc
+
 
 class MyDialog(ctx: Context, cookiet: CookieFields) : Dialog(ctx) {
     private var cookie = cookiet

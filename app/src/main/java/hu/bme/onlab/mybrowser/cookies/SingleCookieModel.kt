@@ -50,7 +50,7 @@ abstract class SingleCookieModel(val context: Context, val activity: CookieActiv
                 }
             }
             dbThread.start()
-            //TODO delete
+
         }
         holder.name.setOnClickListener() {
             buildDialog()
