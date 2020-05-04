@@ -27,9 +27,8 @@ import com.google.android.material.tabs.TabLayout
 import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkActivity
 import hu.bme.onlab.mybrowser.bookmarks__room.EntityBookMark
 import hu.bme.onlab.mybrowser.cookies.CookieActivity
-import hu.bme.onlab.mybrowser.cookies.CookieDatabase
-import hu.bme.onlab.mybrowser.cookies.CookieFields
-import hu.bme.onlab.mybrowser.cookies.Cookie_Entity
+import hu.bme.onlab.mybrowser.cookies.entities.CookieEntity
+import hu.bme.onlab.mybrowser.cookies.entities.CookieFields
 import hu.bme.onlab.mybrowser.history_room.HistoryActivity
 import hu.bme.onlab.mybrowser.history_room.HistoryEntity
 import hu.bme.onlab.mybrowser.tabs.MyAdapter
@@ -37,22 +36,19 @@ import hu.bme.onlab.mybrowser.tabs.MyWebView
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.toolbar.view.*
 import net.gotev.cookiestore.removeAll
-import java.net.CookieManager
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 class WebViewActivity : AppCompatActivity() {
-
-    var cookieManager = CookieManager()
     lateinit var fullscreenView: View
     private var URL = "https://google.com"
     private var isAlreadyCreated = false
     private var bottomNavigation: BottomNavigationView? = null
     lateinit var db: MyDatabase
     lateinit var dbhistory: MyDatabase
-    lateinit var dbCookies: CookieDatabase
+    lateinit var dbCookies: MyDatabase
     private var menu: Menu? = null
     private var filledStar = false
     private var list: List<EntityBookMark>? = null
@@ -103,8 +99,7 @@ class WebViewActivity : AppCompatActivity() {
 
         db = MyDatabase.getInstance(this)
         dbhistory = MyDatabase.getInstanceHistory(this)
-        dbCookies = CookieDatabase.getInstance(this)
-
+        dbCookies = MyDatabase.getInstanceCookie(this)
         setSupportActionBar(findViewById(R.id.toolbar))
         bottomNavigation = findViewById(R.id.navigation)
 
@@ -359,12 +354,12 @@ class WebViewActivity : AppCompatActivity() {
         MyDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
     }
 
-    fun getCookies(): List<Cookie_Entity> {
-        return CookieDatabase.getInstance(this).cookiedao().getCookie()
+    private fun getCookies(): List<CookieEntity> {
+        return MyDatabase.getInstanceCookie(this).cookiedao().getCookie()
     }
 
-    fun deleteCookie(Cookie: Cookie_Entity) {
-        CookieDatabase.getInstance(this).cookiedao().deleteCookie(Cookie)
+    fun deleteCookie(cookie: CookieEntity) {
+        MyDatabase.getInstanceCookie(this).cookiedao().deleteCookie(cookie)
     }
 
 
@@ -452,10 +447,11 @@ class WebViewActivity : AppCompatActivity() {
             val newCookieList: MutableList<CookieFields> = mutableListOf()
             domainList.forEach {
                 if (android.webkit.CookieManager.getInstance().getCookie(it.domain) != null) {
-                    val tmp = CookieFields(
-                        it.domain,
-                        android.webkit.CookieManager.getInstance().getCookie(it.domain)
-                    )
+                    val tmp =
+                        CookieFields(
+                            it.domain,
+                            android.webkit.CookieManager.getInstance().getCookie(it.domain)
+                        )
                     newCookieList.add(tmp)
                 }
 
@@ -468,14 +464,14 @@ class WebViewActivity : AppCompatActivity() {
     }
 
     fun addCookie(uri: URL) {
-        val tmp = Cookie_Entity(uri.host)
+        val tmp = CookieEntity(uri.host)
         var used = false
-        CookieDatabase.getInstance(this).cookiedao().getCookie().forEach {
+        MyDatabase.getInstanceCookie(this).cookiedao().getCookie().forEach {
             if (it.domain == uri.host)
                 used = true
         }
         if (!used)
-            CookieDatabase.getInstance(this).cookiedao().insertCookie(tmp)
+            MyDatabase.getInstanceCookie(this).cookiedao().insertCookie(tmp)
 
 
     }

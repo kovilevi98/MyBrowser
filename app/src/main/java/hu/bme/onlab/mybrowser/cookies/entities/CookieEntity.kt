@@ -1,11 +1,11 @@
-package hu.bme.onlab.mybrowser.cookies
+package hu.bme.onlab.mybrowser.cookies.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "cookie")
-data class Cookie_Entity(val domain_t: String) {
+data class CookieEntity(val domain_t: String) {
 
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0

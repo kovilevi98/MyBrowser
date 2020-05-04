@@ -8,7 +8,8 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import hu.bme.onlab.mybrowser.R
-import hu.bme.onlab.mybrowser.cookies.CookieFields
+import hu.bme.onlab.mybrowser.cookies.entities.CookieFields
+import hu.bme.onlab.mybrowser.cookies.entities.SpecialEntity
 import kotlinx.android.synthetic.main.row_item.view.*
 import kotlinx.android.synthetic.main.singlecookie.view.CookieValue
 
@@ -72,7 +73,10 @@ class Adapter(cookieField: CookieFields) : RecyclerView.Adapter<Adapter.ViewHold
             val list = wholeCookie.wholeCookie_t.split(";")
             list.forEach {
                 val value = it.split("=")
-                val tmp = SpecialEntity(value[0], value[1])
+                val tmp = SpecialEntity(
+                    value[0],
+                    value[1]
+                )
                 if (value[0] != cookie.name)
                     newList.add(tmp)
             }

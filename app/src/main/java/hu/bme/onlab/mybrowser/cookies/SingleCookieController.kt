@@ -2,6 +2,8 @@ package hu.bme.onlab.mybrowser.cookies
 
 import android.content.Context
 import com.airbnb.epoxy.AsyncEpoxyController
+import hu.bme.onlab.mybrowser.MyDatabase
+import hu.bme.onlab.mybrowser.cookies.entities.CookieFields
 
 
 class SingleCookieController(val context: Context, val activity: CookieActivity) :
@@ -14,14 +16,17 @@ class SingleCookieController(val context: Context, val activity: CookieActivity)
         }
 
     init {
-        val list = CookieDatabase.getInstance(context).cookiedao().getCookie()
+        val list = MyDatabase.getInstanceCookie(context).cookiedao().getCookie()
         var result: MutableList<CookieFields> = mutableListOf()
         list?.forEach {
             val cookieStr = android.webkit.CookieManager.getInstance()
                 .getCookie(it.domain)
             //Log.e("az url", it)
             if (cookieStr != null) {
-                var temp = CookieFields(it.domain, cookieStr)
+                var temp = CookieFields(
+                    it.domain,
+                    cookieStr
+                )
                 result.add(temp)
             }
 
@@ -30,14 +35,17 @@ class SingleCookieController(val context: Context, val activity: CookieActivity)
     }
 
     fun refresh() {
-        val list = CookieDatabase.getInstance(context).cookiedao().getCookie()
+        val list = MyDatabase.getInstanceCookie(context).cookiedao().getCookie()
         var result: MutableList<CookieFields> = mutableListOf()
         list?.forEach {
             val cookieStr = android.webkit.CookieManager.getInstance()
                 .getCookie(it.domain)
             //Log.e("az url", it)
             if (cookieStr != null) {
-                var temp = CookieFields(it.domain, cookieStr)
+                var temp = CookieFields(
+                    it.domain,
+                    cookieStr
+                )
                 result.add(temp)
             }
 

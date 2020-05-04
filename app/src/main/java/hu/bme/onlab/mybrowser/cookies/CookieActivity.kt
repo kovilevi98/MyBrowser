@@ -6,13 +6,16 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import hu.bme.onlab.mybrowser.MyDatabase
 import hu.bme.onlab.mybrowser.R
+import hu.bme.onlab.mybrowser.cookies.entities.CookieEntity
+import hu.bme.onlab.mybrowser.cookies.entities.CookieFields
 import kotlinx.android.synthetic.main.activity_bookmark.bookmarknav
 import kotlinx.android.synthetic.main.activity_cookie.*
 
 class CookieActivity : AppCompatActivity() {
     private var bottomNavigation: BottomNavigationView? = null
-    val controller = SingleCookieController(this, this)
+    private val controller = SingleCookieController(this, this)
     val ticked = SingleCookieController.ticked_list.ticked
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,30 +41,24 @@ class CookieActivity : AppCompatActivity() {
         })
     }
 
-    private fun getCookies(): LiveData<List<Cookie_Entity>> {
-        return CookieDatabase.getInstance(this).cookiedao().getCookieList()
-    }
-
-    private fun deleteCookie(Cookie: Cookie_Entity) {
-        val dbThread = Thread {
-            CookieDatabase.getInstance(this).cookiedao().deleteCookie(Cookie)
-        }
-        dbThread.start()
+    private fun getCookies(): LiveData<List<CookieEntity>> {
+        return MyDatabase.getInstanceCookie(this).cookiedao().getCookieList()
     }
 
     fun removeItems(forDelete: List<CookieFields>) {
-        var deleteList = mutableListOf<Cookie_Entity>()
+        var deleteList = mutableListOf<CookieEntity>()
         forDelete.forEach {
-            val temp = Cookie_Entity(it.domain_t)
+            val temp =
+                CookieEntity(it.domain_t)
             deleteList.add(temp)
         }
         deleteList.forEach {
-            var cookieData: List<Cookie_Entity>
+            var cookieData: List<CookieEntity>
             val dbThread = Thread {
                 cookieData =
-                    CookieDatabase.getInstance(this).cookiedao().getSpecificGrades(it.domain_t)
+                    MyDatabase.getInstanceCookie(this).cookiedao().getSpecificGrades(it.domain_t)
                 cookieData.forEach {
-                    CookieDatabase.getInstance(this).cookiedao().deleteCookie(it)
+                    MyDatabase.getInstanceCookie(this).cookiedao().deleteCookie(it)
                 }
             }
             dbThread.start()

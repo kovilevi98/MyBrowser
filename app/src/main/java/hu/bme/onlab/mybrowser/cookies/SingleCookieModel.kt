@@ -2,6 +2,7 @@ package hu.bme.onlab.mybrowser.cookies
 
 import android.content.Context
 import android.view.View
+import android.webkit.CookieManager
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatTextView
@@ -9,7 +10,10 @@ import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
+import hu.bme.onlab.mybrowser.MyDatabase
 import hu.bme.onlab.mybrowser.R
+import hu.bme.onlab.mybrowser.cookies.entities.CookieEntity
+import hu.bme.onlab.mybrowser.cookies.entities.CookieFields
 import hu.bme.onlab.mybrowser.cookies.special.MyDialog
 
 
@@ -35,16 +39,18 @@ abstract class SingleCookieModel(val context: Context, val activity: CookieActiv
             }
         }
         holder.Cookiekdelete.setOnClickListener {
-            var cookieData: List<Cookie_Entity>
+            var cookieData: List<CookieEntity>
+            CookieManager.getInstance().setCookie(cookie.domain_t, "")
             val dbThread = Thread {
                 cookieData =
-                    CookieDatabase.getInstance(context).cookiedao()
+                    MyDatabase.getInstanceCookie(context).cookiedao()
                         .getSpecificGrades(cookie.domain_t)
                 cookieData.forEach {
-                    CookieDatabase.getInstance(context).cookiedao().deleteCookie(it)
+                    MyDatabase.getInstanceCookie(context).cookiedao().deleteCookie(it)
                 }
             }
             dbThread.start()
+            //TODO delete
         }
         holder.name.setOnClickListener() {
             buildDialog()

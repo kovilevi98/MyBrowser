@@ -2,31 +2,32 @@ package hu.bme.onlab.mybrowser.cookies
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import hu.bme.onlab.mybrowser.cookies.entities.CookieEntity
 
 @Dao
 interface CookieDao {
     @Query("Select * from cookie")
-    fun getCookieList(): LiveData<List<Cookie_Entity>>
+    fun getCookieList(): LiveData<List<CookieEntity>>
 
     @Query("Select * from cookie")
-    fun getCookie(): List<Cookie_Entity>
+    fun getCookie(): List<CookieEntity>
 
     @Query("SELECT * FROM cookie WHERE domain = :name")
-    fun getSpecificGrades(name: String): List<Cookie_Entity>
+    fun getSpecificGrades(name: String): List<CookieEntity>
 
     @Query("SELECT * FROM cookie WHERE id = :name")
-    fun getSpecificGradesbyID(name: Int): List<Cookie_Entity>
+    fun getSpecificGradesbyID(name: Int): List<CookieEntity>
 
     @Query("SELECT * FROM cookie WHERE domain = :name")
-    fun getFromDomain(name: String): List<Cookie_Entity>
+    fun getFromDomain(name: String): List<CookieEntity>
 
     @Delete
-    fun deleteCookie(c: Cookie_Entity)
+    fun deleteCookie(c: CookieEntity)
 
     @Update
-    fun updateCookie(c: Cookie_Entity)
+    fun updateCookie(c: CookieEntity)
 
     @Insert
-    fun insertCookie(vararg c: Cookie_Entity)
+    fun insertCookie(vararg c: CookieEntity)
 
 }

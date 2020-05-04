@@ -5,7 +5,8 @@ import android.content.Context
 import android.os.Bundle
 import android.view.Window
 import hu.bme.onlab.mybrowser.R
-import hu.bme.onlab.mybrowser.cookies.CookieFields
+import hu.bme.onlab.mybrowser.cookies.entities.CookieFields
+import hu.bme.onlab.mybrowser.cookies.entities.SpecialEntity
 import kotlinx.android.synthetic.main.advancecookielayout.*
 import kotlinx.android.synthetic.main.list.recyc
 
@@ -25,7 +26,12 @@ class MyDialog(ctx: Context, cookiet: CookieFields) : Dialog(ctx) {
             if (tmp.size == 2) {
                 // Log.e("name:",tmp.get(0))
                 //Log.e("value",tmp.get(1))
-                specialCookieList.add(SpecialEntity(tmp[0], tmp[1]))
+                specialCookieList.add(
+                    SpecialEntity(
+                        tmp[0],
+                        tmp[1]
+                    )
+                )
             }
 
         }
