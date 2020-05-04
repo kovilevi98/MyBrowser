@@ -42,22 +42,22 @@ import java.util.*
 
 
 class WebViewActivity : AppCompatActivity() {
-    lateinit var fullscreenView: View
-    private var URL = "https://google.com"
+    private lateinit var fullscreenView: View
+    private var startURL = "https://google.com"
     private var isAlreadyCreated = false
     private var bottomNavigation: BottomNavigationView? = null
-    lateinit var db: MyDatabase
-    lateinit var dbhistory: MyDatabase
-    lateinit var dbCookies: MyDatabase
+    private lateinit var db: MyDatabase
+    private lateinit var dbhistory: MyDatabase
+    private lateinit var dbCookies: MyDatabase
     private var menu: Menu? = null
     private var filledStar = false
     private var list: List<EntityBookMark>? = null
 
-    var tabLayout: TabLayout? = null
+    private var tabLayout: TabLayout? = null
     var viewPager: ViewPager? = null
     private lateinit var adapter: MyAdapter
-    var tabsCount = 1
-    var tabs: MutableList<MyWebView> = mutableListOf()
+    private var tabsCount = 1
+    private var tabs: MutableList<MyWebView> = mutableListOf()
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,8 +71,8 @@ class WebViewActivity : AppCompatActivity() {
             tabLayout!!.addTab(tabLayout!!.newTab().setText(temp.getTitle()))
         }
 
-        tabLayout = findViewById<TabLayout>(R.id.tabLayout)
-        viewPager = findViewById<ViewPager>(R.id.viewPager)
+        tabLayout = findViewById(R.id.tabLayout)
+        viewPager = findViewById(R.id.viewPager)
         tabLayout!!.setupWithViewPager(viewPager)
 
         tabs.add(MyWebView())
@@ -110,9 +110,9 @@ class WebViewActivity : AppCompatActivity() {
 
         toolbar.searchbutton.setOnClickListener {
             val url = toolbar.url.text.toString()
-            createurl(url)
-            adapter.tabs[viewPager!!.currentItem].setUrl(URL)
-            toolbar.url.setText(URL)
+            createUrl(url)
+            adapter.tabs[viewPager!!.currentItem].setUrl(startURL)
+            toolbar.url.setText(startURL)
         }
 
         navigation.setOnNavigationItemSelectedListener {
@@ -120,21 +120,21 @@ class WebViewActivity : AppCompatActivity() {
                 R.id.back -> {
                     if (adapter.tabs[viewPager!!.currentItem].canGoBack())
                         adapter.tabs[viewPager!!.currentItem].goBack()
-                    URL = adapter.tabs[viewPager!!.currentItem].getUrl()
-                    toolbar.url.setText(URL)
+                    startURL = adapter.tabs[viewPager!!.currentItem].getUrl()
+                    toolbar.url.setText(startURL)
                     true
                 }
                 R.id.forward -> {
                     if (adapter.tabs[viewPager!!.currentItem].canGoForward())
                         adapter.tabs[viewPager!!.currentItem].goForward()
-                    URL = adapter.tabs[viewPager!!.currentItem].getUrl()
-                    toolbar.url.setText(URL)
+                    startURL = adapter.tabs[viewPager!!.currentItem].getUrl()
+                    toolbar.url.setText(startURL)
                     true
                 }
                 R.id.refresh -> {
                     adapter.tabs[viewPager!!.currentItem].reload()
-                    toolbar.url.setText(URL)
-                    URL = adapter.tabs[viewPager!!.currentItem].getUrl()
+                    toolbar.url.setText(startURL)
+                    startURL = adapter.tabs[viewPager!!.currentItem].getUrl()
                     true
                 }
                 else -> false
@@ -144,16 +144,16 @@ class WebViewActivity : AppCompatActivity() {
         toolbar.url.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                 val url = toolbar.url.text.toString()
-                createurl(url)
-                adapter.tabs[viewPager!!.currentItem].loadUrl(URL)
-                toolbar.url.setText(URL)
+                createUrl(url)
+                adapter.tabs[viewPager!!.currentItem].loadUrl(startURL)
+                toolbar.url.setText(startURL)
                 return@OnKeyListener true
             }
             false
         })
 
         getBookMarks().observe(this, Observer {
-            starCheck_LOCAL(it)
+            starCheckLOCAL(it)
             list = it
             adapter.tabs[viewPager!!.currentItem].setList(list)
         })
@@ -167,16 +167,16 @@ class WebViewActivity : AppCompatActivity() {
     }
 
 
-    private fun createurl(url: String) {
-        if (url.take(3) == "www" || url.take(3) == "WWW")
-            URL = ("https://" + url)
+    private fun createUrl(url: String) {
+        startURL = if (url.take(3) == "www" || url.take(3) == "WWW")
+            ("https://" + url)
         else {
             if (url.contains('.') && url.take(12) != "https://www.")
-                URL = ("https://www." + url)
+                ("https://www." + url)
             else {
                 if (url.take(12) == "https://www.")
-                    URL = url
-                else URL = ("https://www.google.com/search?q=" + url)
+                    url
+                else ("https://www.google.com/search?q=" + url)
             }
         }
     }
@@ -192,17 +192,17 @@ class WebViewActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.star -> {
-            val currenturl = adapter.tabs[viewPager!!.currentItem].getUrl()
+            val currentUrl = adapter.tabs[viewPager!!.currentItem].getUrl()
             if (!filledStar) {
                 insertBookmark(
                     EntityBookMark(
-                        currenturl,
+                        currentUrl,
                         adapter.tabs[viewPager!!.currentItem].getTitle()
                     )
                 )
                 starChanger(1,R.drawable.ic_action_star_10)
             } else {
-                val list = getBookMark(currenturl)
+                val list = getBookMark(currentUrl)
                 starChanger(1,R.drawable.ic_star_0)
                 for (i in list)
                     deleteBookMark(i)
@@ -255,26 +255,30 @@ class WebViewActivity : AppCompatActivity() {
             true
         }
         R.id.close -> {
-            if (viewPager!!.currentItem == 0) {
-                Toast.makeText(
-                    this,
-                    "This is the main tab you can not close this",
-                    Toast.LENGTH_LONG
-                ).show()
-            } else if (tabs.size > 1) {
-                //tabLayout?.removeTabAt(tabLayout!!.selectedTabPosition)
-                viewPager!!.setCurrentItem(0)
-                val removeable = tabLayout!!.selectedTabPosition
-                tabs.removeAt(removeable)
-                adapter.notifyDataSetChanged()
-                tabsCount--
-                adapter.notifyDataSetChanged()
-                viewPager!!.offscreenPageLimit = tabs.size - 1
-                //viewPager!!.removeViewAt(1)
-                adapter.notifyDataSetChanged()
-                Log.e("tabok szama", tabs.size.toString())
-                Toast.makeText(this, "Tabs closed", Toast.LENGTH_LONG).show()
-            } else Toast.makeText(this, "This is the last tab", Toast.LENGTH_LONG).show()
+            when {
+                viewPager!!.currentItem == 0 -> {
+                    Toast.makeText(
+                        this,
+                        "This is the main tab you can not close this",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                tabs.size > 1 -> {
+                    //tabLayout?.removeTabAt(tabLayout!!.selectedTabPosition)
+                    viewPager!!.currentItem = 0
+                    val removeable = tabLayout!!.selectedTabPosition
+                    tabs.removeAt(removeable)
+                    adapter.notifyDataSetChanged()
+                    tabsCount--
+                    adapter.notifyDataSetChanged()
+                    viewPager!!.offscreenPageLimit = tabs.size - 1
+                    //viewPager!!.removeViewAt(1)
+                    adapter.notifyDataSetChanged()
+                    Log.e("tabok szama", tabs.size.toString())
+                    Toast.makeText(this, "Tabs closed", Toast.LENGTH_LONG).show()
+                }
+                else -> Toast.makeText(this, "This is the last tab", Toast.LENGTH_LONG).show()
+            }
             refreshTabs()
             true
         }
@@ -317,27 +321,27 @@ class WebViewActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(context)
         dialog.setTitle(title)
         dialog.setMessage(message)
-        dialog.setNegativeButton("Cancel", { _, _ ->
+        dialog.setNegativeButton("Cancel") { _, _ ->
             this@WebViewActivity.finish()
-        })
+        }
 
-        dialog.setPositiveButton("Retry", { _, _ ->
+        dialog.setPositiveButton("Retry") { _, _ ->
             this@WebViewActivity.recreate()
-        })
+        }
         dialog.create().show()
     }
 
 
-    private fun insertBookmark(bookmarkdata: EntityBookMark) {
+    private fun insertBookmark(bookmarkData: EntityBookMark) {
         val dbThread = Thread {
-            db.bookMarkDao().insertBookMark(bookmarkdata)
+            db.bookMarkDao().insertBookMark(bookmarkData)
         }
         dbThread.start()
     }
 
-    private fun insertHistory(historydata: HistoryEntity) {
+    private fun insertHistory(historyData: HistoryEntity) {
         val dbThread = Thread {
-            dbhistory.historyDao().insertHistory(historydata)
+            dbhistory.historyDao().insertHistory(historyData)
         }
         dbThread.start()
     }
@@ -350,32 +354,32 @@ class WebViewActivity : AppCompatActivity() {
         return MyDatabase.getInstance(this).bookMarkDao().getSpecificGrades(name)
     }
 
-    private fun deleteBookMark(bookmarkdata: EntityBookMark) {
-        MyDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
+    private fun deleteBookMark(bookmarkData: EntityBookMark) {
+        MyDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkData)
     }
 
     private fun getCookies(): List<CookieEntity> {
         return MyDatabase.getInstanceCookie(this).cookiedao().getCookie()
     }
 
-    fun deleteCookie(cookie: CookieEntity) {
+    private fun deleteCookie(cookie: CookieEntity) {
         MyDatabase.getInstanceCookie(this).cookiedao().deleteCookie(cookie)
     }
 
 
-    fun starCheck_LOCAL(list: List<EntityBookMark>) {
-        val currenturl = adapter.tabs[viewPager!!.currentItem].getUrl()
+    fun starCheckLOCAL(list: List<EntityBookMark>) {
+        val currentUrl = adapter.tabs[viewPager!!.currentItem].getUrl()
         var new = true
         for (i in list) {
-            if (i.url == currenturl)
+            if (i.url == currentUrl)
                 new = false
         }
-        if (!new) {
+        filledStar = if (!new) {
             starChanger(1,R.drawable.ic_action_star_10)
-            filledStar = true
+            true
         } else {
             starChanger(1,R.drawable.ic_star_0)
-            filledStar = false
+            false
         }
     }
     private fun starChanger(index:Int,@DrawableRes id : Int){
@@ -390,7 +394,7 @@ class WebViewActivity : AppCompatActivity() {
         val currentSize = currentList.size
         for (i in 0 until currentSize) {
             val item = currentList.getItemAtIndex(i)
-            val sdf: SimpleDateFormat = SimpleDateFormat(getString(R.string.dateformat))
+            val sdf = SimpleDateFormat(getString(R.string.dateformat))
             val currentDate = sdf.format(Date())
             val tmp = HistoryEntity(item.url, currentDate, item.title)
             insertHistory(tmp)
@@ -424,12 +428,12 @@ class WebViewActivity : AppCompatActivity() {
         swipeRefreshLayout.isEnabled = b
     }
 
-    fun setCurrentUrl(string: String) {
+    private fun setCurrentUrl(string: String) {
         adapter.tabs[viewPager!!.currentItem].setUrl(string)
         toolbar.url.setText(string)
     }
 
-    fun refreshTabs() {
+    private fun refreshTabs() {
         (0 until tabs.size - 1).forEach {
             tabLayout!!.getTabAt(it)?.text = "init"
         }
@@ -438,8 +442,8 @@ class WebViewActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
-            val geturl = data!!.extras?.get("MESSAGE").toString()
-            setCurrentUrl(geturl)
+            val getUrl = data!!.extras?.get("MESSAGE").toString()
+            setCurrentUrl(getUrl)
         }
         if (resultCode == Activity.RESULT_CANCELED) {
 

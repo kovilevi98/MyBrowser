@@ -19,7 +19,7 @@ import java.net.URL
 
 
 class MyWebView : Fragment() {
-    val startPage = "https://www.google.com/"
+    private val startPage = "https://www.google.com/"
     private var list: List<EntityBookMark>? = null
     var testArray: MutableList<String>? = null
 
@@ -28,7 +28,7 @@ class MyWebView : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater!!.inflate(R.layout.fragment_webview, container, false)
+        return inflater.inflate(R.layout.fragment_webview, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,12 +63,9 @@ class MyWebView : Fragment() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 val cookies = CookieManager.getInstance().getCookie(url)
 
-                if (cookies != null) {
-                    // Log.e("cookies in a string:", cookies)
-                }
                 (activity as WebViewActivity).setText(webView.url)
                 (activity as WebViewActivity).setTabText(webView.title)
-                list?.let { (activity as WebViewActivity).starCheck_LOCAL(it) }
+                list?.let { (activity as WebViewActivity).starCheckLOCAL(it) }
             }
 
             override fun shouldInterceptRequest(
@@ -80,18 +77,13 @@ class MyWebView : Fragment() {
                 if (testArray == null)
                     testArray = mutableListOf()
                 if (url != null) {
-                    val URI = URL(url)
-                    if (!testArray!!.contains(URI.host))
-                        testArray!!.add(URI.host)
+                    val uri = URL(url)
+                    if (!testArray!!.contains(uri.host))
+                        testArray!!.add(uri.host)
 
-                    (activity as WebViewActivity).addCookie(URI)
+                    (activity as WebViewActivity).addCookie(uri)
                 }
                 return super.shouldInterceptRequest(view, url)
-            }
-
-
-            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                return super.shouldOverrideUrlLoading(view, url)
             }
 
             override fun onReceivedError(
@@ -121,19 +113,13 @@ class MyWebView : Fragment() {
                 (activity as WebViewActivity).removeVideo()
             }
 
-            override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
-                //Log.e("az uzenet",consoleMessage?.message())
-                //val stg=consoleMessage?.message()?.start
-                //val stg2=
-                return super.onConsoleMessage(consoleMessage)
-            }
         }
 
         webView.setOnTouchListener { v, event ->
             when (event?.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    var URL = webView.url
-                    (activity as WebViewActivity).setText(URL)
+                    val url = webView.url
+                    (activity as WebViewActivity).setText(url)
                     (activity as WebViewActivity).setTabText(webView.title)
                 }
             }
@@ -195,7 +181,7 @@ class MyWebView : Fragment() {
     }
 
 
-    fun addRefreshListener() {
+    private fun addRefreshListener() {
         webView.viewTreeObserver.addOnScrollChangedListener {
             if (webView.scrollY < 50 && webView.scrollY != 0) {
                 (activity as WebViewActivity).setScroll(true)

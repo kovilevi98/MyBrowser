@@ -4,7 +4,7 @@ import android.content.Context
 import com.airbnb.epoxy.AsyncEpoxyController
 import hu.bme.onlab.mybrowser.MyDatabase
 
-class SingleBookMakrController(val context: Context, val activity: BookMarkActivity) :
+class SingleBookMarkController(val context: Context, val activity: BookMarkActivity) :
     AsyncEpoxyController() {
 
     var bookItems: MutableList<EntityBookMark> = mutableListOf()

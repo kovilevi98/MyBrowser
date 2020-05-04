@@ -22,7 +22,7 @@ abstract class SingleBookMarkModel(val context: Context, val activity: BookMarkA
 
     override fun bind(holder: Holder) {
         super.bind(Holder())
-        val controller = SingleBookMakrController.TickedList
+        val controller = SingleBookMarkController.TickedList
         holder.checked.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 with(bookmark) {
@@ -34,26 +34,26 @@ abstract class SingleBookMarkModel(val context: Context, val activity: BookMarkA
                 }
             }
         }
-        holder.bookmarkdelete.setOnClickListener {
-            var new_url: String
+        holder.bookmarkDelete.setOnClickListener {
+            var newUrl: String
             with(bookmark) {
-                new_url = this.url
+                newUrl = this.url
             }
             val dbThread = Thread {
-                val bookmarkdata =
-                    MyDatabase.getInstance(context).bookMarkDao().getSpecificGrades(new_url)
-                bookmarkdata.forEach {
+                val bookmarkData =
+                    MyDatabase.getInstance(context).bookMarkDao().getSpecificGrades(newUrl)
+                bookmarkData.forEach {
                     MyDatabase.getInstance(context).bookMarkDao().deleteBookMark(it)
                 }
             }
             dbThread.start()
         }
-        holder.urlView.setOnClickListener() {
-            var new_url: String
+        holder.urlView.setOnClickListener {
+            var newUrl: String
             with(bookmark) {
-                new_url = this.url
+                newUrl = this.url
             }
-            (activity).finished(new_url)
+            (activity).finished(newUrl)
         }
         with(bookmark) {
             holder.urlView.text = title
@@ -64,12 +64,12 @@ abstract class SingleBookMarkModel(val context: Context, val activity: BookMarkA
     inner class Holder : EpoxyHolder() {
         lateinit var urlView: AppCompatButton
         lateinit var checked: AppCompatCheckBox
-        lateinit var bookmarkdelete: AppCompatImageButton
+        lateinit var bookmarkDelete: AppCompatImageButton
 
         override fun bindView(itemView: View) {
             urlView = itemView.findViewById(R.id.bookmarkurl)
             checked = itemView.findViewById(R.id.bookmarkchecked)
-            bookmarkdelete = itemView.findViewById(R.id.bookmarkdelete)
+            bookmarkDelete = itemView.findViewById(R.id.bookmarkdelete)
         }
     }
 }

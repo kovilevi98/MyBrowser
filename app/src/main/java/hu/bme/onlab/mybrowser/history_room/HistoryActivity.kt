@@ -14,8 +14,8 @@ import kotlinx.android.synthetic.main.activity_history.*
 class HistoryActivity : AppCompatActivity() {
 
     private var bottomNavigation: BottomNavigationView? = null
-    val controller = SingleHistoryController(this, this)
-    val ticked = SingleHistoryController.ticked_list.ticked
+    private val controller = SingleHistoryController(this, this)
+    val ticked = SingleHistoryController.tickedList.ticked
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,8 +53,8 @@ class HistoryActivity : AppCompatActivity() {
         return MyDatabase.getInstanceHistory(this).historyDao().getHistory()
     }
 
-    private fun deleteBookMark(bookmarkdata: HistoryEntity) {
-        MyDatabase.getInstanceHistory(this).historyDao().deleteHistory(bookmarkdata)
+    private fun deleteBookMark(historyData: HistoryEntity) {
+        MyDatabase.getInstanceHistory(this).historyDao().deleteHistory(historyData)
 
     }
 

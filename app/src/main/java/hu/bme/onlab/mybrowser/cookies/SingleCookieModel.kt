@@ -26,7 +26,7 @@ abstract class SingleCookieModel(val context: Context, val activity: CookieActiv
 
     override fun bind(holder: Holder) {
         super.bind(Holder())
-        val controller = SingleCookieController.ticked_list
+        val controller = SingleCookieController.tickedList
         holder.checked.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 with(cookie) {
@@ -38,7 +38,7 @@ abstract class SingleCookieModel(val context: Context, val activity: CookieActiv
                 }
             }
         }
-        holder.Cookiekdelete.setOnClickListener {
+        holder.cookieDelete.setOnClickListener {
             var cookieData: List<CookieEntity>
             CookieManager.getInstance().setCookie(cookie.domain_t, "")
             val dbThread = Thread {
@@ -52,7 +52,7 @@ abstract class SingleCookieModel(val context: Context, val activity: CookieActiv
             dbThread.start()
 
         }
-        holder.name.setOnClickListener() {
+        holder.name.setOnClickListener {
             buildDialog()
         }
 
@@ -76,14 +76,14 @@ abstract class SingleCookieModel(val context: Context, val activity: CookieActiv
         lateinit var value: AppCompatTextView
         lateinit var domain: AppCompatTextView
         lateinit var checked: AppCompatCheckBox
-        lateinit var Cookiekdelete: AppCompatImageButton
+        lateinit var cookieDelete: AppCompatImageButton
 
         override fun bindView(itemView: View) {
             name = itemView.findViewById(R.id.CookieName)
             checked = itemView.findViewById(R.id.cookieChecked)
             value = itemView.findViewById(R.id.CookieValue)
             domain = itemView.findViewById(R.id.CookieDomain)
-            Cookiekdelete = itemView.findViewById(R.id.CookieDelete)
+            cookieDelete = itemView.findViewById(R.id.CookieDelete)
         }
     }
 }

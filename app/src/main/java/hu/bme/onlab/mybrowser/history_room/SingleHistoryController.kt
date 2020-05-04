@@ -28,7 +28,7 @@ class SingleHistoryController(val context: Context, val activity: HistoryActivit
         }
     }
 
-    object ticked_list {
+    object tickedList {
         var ticked: MutableList<HistoryEntity> = ArrayList()
     }
 }

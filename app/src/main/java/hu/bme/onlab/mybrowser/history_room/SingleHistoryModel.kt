@@ -23,7 +23,7 @@ abstract class SingleHistoryModel(val context: Context, val activity: HistoryAct
 
     override fun bind(holder: Holder) {
         super.bind(Holder())
-        val controller = SingleHistoryController.ticked_list
+        val controller = SingleHistoryController.tickedList
 
         holder.checked.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -36,27 +36,27 @@ abstract class SingleHistoryModel(val context: Context, val activity: HistoryAct
                 }
             }
         }
-        holder.historydelete.setOnClickListener {
-            var new_url: String
+        holder.historyDelete.setOnClickListener {
+            var newUrl: String
 
             with(historyItem) {
-                new_url = this.url
+                newUrl = this.url
             }
             val dbThread = Thread {
-                val bookmarkdata =
-                    MyDatabase.getInstanceHistory(context).historyDao().getSpecificGrades(new_url)
-                bookmarkdata.forEach {
+                val bookmarkData =
+                    MyDatabase.getInstanceHistory(context).historyDao().getSpecificGrades(newUrl)
+                bookmarkData.forEach {
                     MyDatabase.getInstanceHistory(context).historyDao().deleteHistory(it)
                 }
             }
             dbThread.start()
         }
-        holder.urlView.setOnClickListener() {
-            var new_url: String
+        holder.urlView.setOnClickListener {
+            var newUrl: String
             with(historyItem) {
-                new_url = this.url
+                newUrl = this.url
             }
-            (activity).finished(new_url)
+            (activity).finished(newUrl)
         }
         with(historyItem) {
             holder.urlView.text = title
@@ -68,13 +68,13 @@ abstract class SingleHistoryModel(val context: Context, val activity: HistoryAct
     inner class Holder : EpoxyHolder() {
         lateinit var urlView: AppCompatButton
         lateinit var checked: AppCompatCheckBox
-        lateinit var historydelete: AppCompatImageButton
+        lateinit var historyDelete: AppCompatImageButton
         lateinit var time: AppCompatTextView
 
         override fun bindView(itemView: View) {
             urlView = itemView.findViewById(R.id.historyurl)
             checked = itemView.findViewById(R.id.historykchecked)
-            historydelete = itemView.findViewById(R.id.histordelete)
+            historyDelete = itemView.findViewById(R.id.histordelete)
             time = itemView.findViewById(R.id.historyTime)
         }
     }

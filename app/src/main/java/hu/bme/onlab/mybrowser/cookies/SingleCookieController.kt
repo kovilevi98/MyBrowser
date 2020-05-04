@@ -9,7 +9,7 @@ import hu.bme.onlab.mybrowser.cookies.entities.CookieFields
 class SingleCookieController(val context: Context, val activity: CookieActivity) :
     AsyncEpoxyController() {
 
-    var cookieItems: MutableList<CookieFields> = mutableListOf()
+    private var cookieItems: MutableList<CookieFields> = mutableListOf()
         set(value) {
             field = value
             requestModelBuild()
@@ -17,8 +17,8 @@ class SingleCookieController(val context: Context, val activity: CookieActivity)
 
     init {
         val list = MyDatabase.getInstanceCookie(context).cookiedao().getCookie()
-        var result: MutableList<CookieFields> = mutableListOf()
-        list?.forEach {
+        val result: MutableList<CookieFields> = mutableListOf()
+        list.forEach {
             val cookieStr = android.webkit.CookieManager.getInstance()
                 .getCookie(it.domain)
             //Log.e("az url", it)
@@ -36,8 +36,8 @@ class SingleCookieController(val context: Context, val activity: CookieActivity)
 
     fun refresh() {
         val list = MyDatabase.getInstanceCookie(context).cookiedao().getCookie()
-        var result: MutableList<CookieFields> = mutableListOf()
-        list?.forEach {
+        val result: MutableList<CookieFields> = mutableListOf()
+        list.forEach {
             val cookieStr = android.webkit.CookieManager.getInstance()
                 .getCookie(it.domain)
             //Log.e("az url", it)
@@ -62,7 +62,7 @@ class SingleCookieController(val context: Context, val activity: CookieActivity)
         }
     }
 
-    object ticked_list {
+    object tickedList {
         var ticked: MutableList<CookieFields> = ArrayList()
     }
 }

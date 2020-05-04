@@ -10,8 +10,8 @@ import hu.bme.onlab.mybrowser.cookies.entities.SpecialEntity
 import kotlinx.android.synthetic.main.advancecookielayout.*
 
 
-class MyDialog(ctx: Context, cookiet: CookieFields) : Dialog(ctx) {
-    private var cookie = cookiet
+class MyDialog(ctx: Context, cookieField: CookieFields) : Dialog(ctx) {
+    private var cookie = cookieField
     private val specialCookieList: MutableList<SpecialEntity> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -11,16 +11,16 @@ import hu.bme.onlab.mybrowser.cookies.entities.CookieEntity
 import hu.bme.onlab.mybrowser.history_room.DaoHistory
 import hu.bme.onlab.mybrowser.history_room.HistoryEntity
 
-private val DATABASE = "bookmarks_04.db"
-private val DATABASEHISTORY = "historys_03.db"
-private val DATABASECOOKIE = "cookies03.db"
+private const val DATABASEBOOKMARK = "bookmarks_04.db"
+private const val DATABASEHISTORY = "historys_03.db"
+private const val DATABASECOOKIE = "cookies03.db"
 
 @Database(
-    entities = arrayOf(EntityBookMark::class, HistoryEntity::class, CookieEntity::class),
+    entities = [EntityBookMark::class, HistoryEntity::class, CookieEntity::class],
     version = 1
 )
 
-abstract class MyDatabase() : RoomDatabase() {
+abstract class MyDatabase : RoomDatabase() {
 
 
     abstract fun bookMarkDao(): DaoBookmark
@@ -37,7 +37,7 @@ abstract class MyDatabase() : RoomDatabase() {
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     MyDatabase::class.java,
-                    DATABASE
+                    DATABASEBOOKMARK
                 ).allowMainThreadQueries().build()
             }
             return instance!!

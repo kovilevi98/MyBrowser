@@ -14,8 +14,8 @@ import kotlinx.android.synthetic.main.activity_bookmark.*
 
 class BookMarkActivity : AppCompatActivity() {
     private var bottomNavigation: BottomNavigationView? = null
-    val controller = SingleBookMakrController(this, this)
-    val ticked = SingleBookMakrController.TickedList.ticked
+    private val controller = SingleBookMarkController(this, this)
+    val ticked = SingleBookMarkController.TickedList.ticked
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bookmark)
@@ -38,16 +38,15 @@ class BookMarkActivity : AppCompatActivity() {
         getBookMarks().observe(this, Observer {
             controller.bookItems = it.toMutableList()
         })
-
     }
 
     private fun getBookMarks(): LiveData<List<EntityBookMark>> {
         return MyDatabase.getInstance(this).bookMarkDao().getBookMarkList()
     }
 
-    private fun deleteBookMark(bookmarkdata: EntityBookMark) {
+    private fun deleteBookMark(bookmarkData: EntityBookMark) {
         val dbThread = Thread {
-            MyDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
+            MyDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkData)
         }
         dbThread.start()
     }

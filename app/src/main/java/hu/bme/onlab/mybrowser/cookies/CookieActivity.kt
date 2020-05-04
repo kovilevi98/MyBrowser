@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.activity_cookie.*
 class CookieActivity : AppCompatActivity() {
     private var bottomNavigation: BottomNavigationView? = null
     private val controller = SingleCookieController(this, this)
-    val ticked = SingleCookieController.ticked_list.ticked
+    val ticked = SingleCookieController.tickedList.ticked
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cookie)
@@ -45,8 +45,8 @@ class CookieActivity : AppCompatActivity() {
         return MyDatabase.getInstanceCookie(this).cookiedao().getCookieList()
     }
 
-    fun removeItems(forDelete: List<CookieFields>) {
-        var deleteList = mutableListOf<CookieEntity>()
+    private fun removeItems(forDelete: List<CookieFields>) {
+        val deleteList = mutableListOf<CookieEntity>()
         forDelete.forEach {
             val temp =
                 CookieEntity(it.domain_t)
@@ -67,7 +67,7 @@ class CookieActivity : AppCompatActivity() {
         controller.requestModelBuild()
     }
 
-    fun finished() {
+    private fun finished() {
         val intent = Intent()
         intent.putExtra("deleted cookies", "good")
         setResult(Activity.RESULT_CANCELED, intent)
