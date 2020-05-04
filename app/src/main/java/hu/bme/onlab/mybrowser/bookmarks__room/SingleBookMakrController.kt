@@ -2,21 +2,18 @@ package hu.bme.onlab.mybrowser.bookmarks__room
 
 import android.content.Context
 import com.airbnb.epoxy.AsyncEpoxyController
+import hu.bme.onlab.mybrowser.MyDatabase
 
 class SingleBookMakrController(val context: Context, val activity: BookMarkActivity) :
     AsyncEpoxyController() {
 
-    var bookItems: MutableList<h_b_Entity> = mutableListOf()
+    var bookItems: MutableList<EntityBookMark> = mutableListOf()
         set(value) {
             field = value
             requestModelBuild()
         }
 
-    private var db: BookMarkDatabase
-
-    init {
-        db = BookMarkDatabase.getInstance(context)
-    }
+    private var db: MyDatabase = MyDatabase.getInstance(context)
 
     override fun buildModels() {
         var i: Long = 0
@@ -28,7 +25,7 @@ class SingleBookMakrController(val context: Context, val activity: BookMarkActiv
         }
     }
 
-    object ticked_list {
-        var ticked: MutableList<h_b_Entity> = ArrayList()
+    object TickedList {
+        var ticked: MutableList<EntityBookMark> = ArrayList()
     }
 }

@@ -12,15 +12,15 @@ import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import hu.bme.onlab.mybrowser.R
 import hu.bme.onlab.mybrowser.WebViewActivity
-import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
+import hu.bme.onlab.mybrowser.bookmarks__room.EntityBookMark
 import kotlinx.android.synthetic.main.fragment_webview.*
 import net.gotev.cookiestore.removeAll
 import java.net.URL
 
 
-class MyWebView_ : Fragment() {
+class MyWebView : Fragment() {
     val startPage = "https://www.google.com/"
-    private var list: List<h_b_Entity>? = null
+    private var list: List<EntityBookMark>? = null
     var testArray: MutableList<String>? = null
 
     override fun onCreateView(
@@ -182,7 +182,11 @@ class MyWebView_ : Fragment() {
         return webView.copyBackForwardList()
     }
 
-    fun setList(list: List<h_b_Entity>?) {
+    fun deleteBackForwardList() {
+        webView.clearHistory()
+    }
+
+    fun setList(list: List<EntityBookMark>?) {
         this.list = list
     }
 

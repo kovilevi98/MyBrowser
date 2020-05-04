@@ -7,8 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import hu.bme.onlab.mybrowser.MyDatabase
 import hu.bme.onlab.mybrowser.R
-import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
 import kotlinx.android.synthetic.main.activity_history.*
 
 class HistoryActivity : AppCompatActivity() {
@@ -39,26 +39,26 @@ class HistoryActivity : AppCompatActivity() {
         recycler_view_history.setController(controller)
         controller.requestModelBuild()
 
-        getBookMarks().observe(this, Observer {
+        getHistories().observe(this, Observer {
             controller.historyItems = it.toMutableList()
         })
     }
 
-    private fun getBookMarks(): LiveData<List<h_b_Entity>> {
-        return HistoryDatabase.getInstance(this).historyDao().getBookMarkList()
+    private fun getHistories(): LiveData<List<HistoryEntity>> {
+        return MyDatabase.getInstanceHistory(this).historyDao().getHistoryList()
     }
 
 
-    private fun getItems(): List<h_b_Entity> {
-        return HistoryDatabase.getInstance(this).historyDao().getHistory()
+    private fun getItems(): List<HistoryEntity> {
+        return MyDatabase.getInstanceHistory(this).historyDao().getHistory()
     }
 
-    private fun deleteBookMark(bookmarkdata: h_b_Entity) {
-        HistoryDatabase.getInstance(this).historyDao().deleteBookMark(bookmarkdata)
+    private fun deleteBookMark(bookmarkdata: HistoryEntity) {
+        MyDatabase.getInstanceHistory(this).historyDao().deleteHistory(bookmarkdata)
 
     }
 
-    fun removeItems(forDelete: List<h_b_Entity>) {
+    private fun removeItems(forDelete: List<HistoryEntity>) {
         forDelete.forEach {
             controller.historyItems.remove(it)
             deleteBookMark(it)

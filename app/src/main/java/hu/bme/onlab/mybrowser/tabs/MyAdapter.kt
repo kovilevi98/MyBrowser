@@ -10,7 +10,7 @@ class MyAdapter(
     private val myContext: Context,
     fm: FragmentManager,
     private var totalTabs: Int,
-    var tabs: MutableList<MyWebView_>
+    var tabs: MutableList<MyWebView>
 ) : FragmentPagerAdapter(fm) {
 
 

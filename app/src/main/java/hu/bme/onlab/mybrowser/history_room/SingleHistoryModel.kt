@@ -10,15 +10,15 @@ import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
+import hu.bme.onlab.mybrowser.MyDatabase
 import hu.bme.onlab.mybrowser.R
-import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
 
 @EpoxyModelClass(layout = R.layout.singlehistory)
 abstract class SingleHistoryModel(val context: Context, val activity: HistoryActivity) :
     EpoxyModelWithHolder<SingleHistoryModel.Holder>() {
 
     @EpoxyAttribute
-    lateinit var historyItem: h_b_Entity
+    lateinit var historyItem: HistoryEntity
 
 
     override fun bind(holder: Holder) {
@@ -44,9 +44,9 @@ abstract class SingleHistoryModel(val context: Context, val activity: HistoryAct
             }
             val dbThread = Thread {
                 val bookmarkdata =
-                    HistoryDatabase.getInstance(context).historyDao().getSpecificGrades(new_url)
+                    MyDatabase.getInstanceHistory(context).historyDao().getSpecificGrades(new_url)
                 bookmarkdata.forEach {
-                    HistoryDatabase.getInstance(context).historyDao().deleteBookMark(it)
+                    MyDatabase.getInstanceHistory(context).historyDao().deleteHistory(it)
                 }
             }
             dbThread.start()

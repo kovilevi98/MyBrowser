@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "bookmark")
-data class h_b_Entity(val url_t: String, val time_t: String, val title_t: String) {
+data class EntityBookMark(val url_t: String, val title_t: String) {
 
     @PrimaryKey(autoGenerate = true)
     var id:Int =0
@@ -16,14 +16,8 @@ data class h_b_Entity(val url_t: String, val time_t: String, val title_t: String
     @ColumnInfo(name = "title")
     var title:String=""
 
-    @ColumnInfo(name = "time")
-    var time:String=""
-        get() = field
-
-
     init {
         url=url_t
-        time=time_t
         title=title_t
     }
 

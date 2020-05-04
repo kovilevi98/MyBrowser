@@ -25,24 +25,21 @@ import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayout
 import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkActivity
-import hu.bme.onlab.mybrowser.bookmarks__room.BookMarkDatabase
-import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
+import hu.bme.onlab.mybrowser.bookmarks__room.EntityBookMark
 import hu.bme.onlab.mybrowser.cookies.CookieActivity
 import hu.bme.onlab.mybrowser.cookies.CookieDatabase
 import hu.bme.onlab.mybrowser.cookies.CookieFields
 import hu.bme.onlab.mybrowser.cookies.Cookie_Entity
 import hu.bme.onlab.mybrowser.history_room.HistoryActivity
-import hu.bme.onlab.mybrowser.history_room.HistoryDatabase
+import hu.bme.onlab.mybrowser.history_room.HistoryEntity
 import hu.bme.onlab.mybrowser.tabs.MyAdapter
-import hu.bme.onlab.mybrowser.tabs.MyWebView_
+import hu.bme.onlab.mybrowser.tabs.MyWebView
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.toolbar.view.*
 import net.gotev.cookiestore.removeAll
-import java.net.CookieHandler
 import java.net.CookieManager
 import java.net.URL
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 import java.util.*
 
 
@@ -52,48 +49,37 @@ class WebViewActivity : AppCompatActivity() {
     lateinit var fullscreenView: View
     private var URL = "https://google.com"
     private var isAlreadyCreated = false
-    private var startPage = "https://www.google.com/"
     private var bottomNavigation: BottomNavigationView? = null
-    lateinit var db: BookMarkDatabase
-    lateinit var dbhistory: HistoryDatabase
+    lateinit var db: MyDatabase
+    lateinit var dbhistory: MyDatabase
     lateinit var dbCookies: CookieDatabase
     private var menu: Menu? = null
     private var filledStar = false
-    private var list: List<h_b_Entity>? = null
+    private var list: List<EntityBookMark>? = null
 
     var tabLayout: TabLayout? = null
     var viewPager: ViewPager? = null
-    lateinit var adapter: MyAdapter
+    private lateinit var adapter: MyAdapter
     var tabsCount = 1
-    var tabs: MutableList<MyWebView_> = mutableListOf()
+    var tabs: MutableList<MyWebView> = mutableListOf()
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
 
-        cookieManager.cookieStore
-        CookieHandler.setDefault(cookieManager)
-
         val ss = intent.getStringExtra("newUrl")
         if (ss != null) {
-            val temp = MyWebView_()
+            val temp = MyWebView()
             temp.setUrl(ss)
             tabs.add(temp)
-
             tabLayout!!.addTab(tabLayout!!.newTab().setText(temp.getTitle()))
         }
 
-
         tabLayout = findViewById<TabLayout>(R.id.tabLayout)
         viewPager = findViewById<ViewPager>(R.id.viewPager)
-
         tabLayout!!.setupWithViewPager(viewPager)
-        //tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
-        //tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
-        //tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
-        tabs.add(MyWebView_())
-        //tabs.add(MyWebView_())
-        //tabs.add(MyWebView_())
+
+        tabs.add(MyWebView())
 
         adapter = MyAdapter(this, supportFragmentManager, tabsCount, tabs)
         viewPager!!.adapter = adapter
@@ -115,8 +101,8 @@ class WebViewActivity : AppCompatActivity() {
         })
         viewPager!!.offscreenPageLimit = tabs.size - 1
 
-        db = BookMarkDatabase.getInstance(this)
-        dbhistory = HistoryDatabase.getInstance(this)
+        db = MyDatabase.getInstance(this)
+        dbhistory = MyDatabase.getInstanceHistory(this)
         dbCookies = CookieDatabase.getInstance(this)
 
         setSupportActionBar(findViewById(R.id.toolbar))
@@ -214,9 +200,8 @@ class WebViewActivity : AppCompatActivity() {
             val currenturl = adapter.tabs[viewPager!!.currentItem].getUrl()
             if (!filledStar) {
                 insertBookmark(
-                    h_b_Entity(
+                    EntityBookMark(
                         currenturl,
-                        LocalDateTime.now().toString(),
                         adapter.tabs[viewPager!!.currentItem].getTitle()
                     )
                 )
@@ -230,17 +215,12 @@ class WebViewActivity : AppCompatActivity() {
             true
         }
         R.id.tabs -> {
-            /*if(tabs.get(tabs.size-1).getUrl()!="https://www.google.com/")
-                tabs.removeAt(tabs.size)*/
-            //tabLayout!!.addTab(tabLayout!!.newTab().setText("Google"))
-            tabs.add(MyWebView_())
+            tabs.add(MyWebView())
             adapter.notifyDataSetChanged()
             tabsCount++
             viewPager!!.offscreenPageLimit = tabs.size
-            Log.e("meret", tabs.size.toString())
-
             refreshTabs()
-            tabLayout!!.getTabAt(tabs.size - 1)?.setText("Google")
+            tabLayout!!.getTabAt(tabs.size - 1)?.text = "Google"
             Toast.makeText(this, "new tab", Toast.LENGTH_LONG).show()
             true
         }
@@ -353,41 +333,30 @@ class WebViewActivity : AppCompatActivity() {
     }
 
 
-    private fun insertBookmark(bookmarkdata: h_b_Entity) {
+    private fun insertBookmark(bookmarkdata: EntityBookMark) {
         val dbThread = Thread {
             db.bookMarkDao().insertBookMark(bookmarkdata)
         }
         dbThread.start()
     }
 
-    private fun insertHistory(historydata: h_b_Entity) {
+    private fun insertHistory(historydata: HistoryEntity) {
         val dbThread = Thread {
-            dbhistory.historyDao().insertBookMark(historydata)
+            dbhistory.historyDao().insertHistory(historydata)
         }
         dbThread.start()
     }
 
-    private fun getBookMarks(): LiveData<List<h_b_Entity>> {
-        return BookMarkDatabase.getInstance(this).bookMarkDao().getBookMarkList()
+    private fun getBookMarks(): LiveData<List<EntityBookMark>> {
+        return MyDatabase.getInstance(this).bookMarkDao().getBookMarkList()
     }
 
-    private fun getBookMark(name: String): List<h_b_Entity> {
-        return BookMarkDatabase.getInstance(this).bookMarkDao().getSpecificGrades(name)
+    private fun getBookMark(name: String): List<EntityBookMark> {
+        return MyDatabase.getInstance(this).bookMarkDao().getSpecificGrades(name)
     }
 
-    private fun deleteBookMark(bookmarkdata: h_b_Entity) {
-        BookMarkDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
-    }
-
-    //TODO most felurija
-    fun insertCookie(Cookie: Cookie_Entity) {
-        val list = getCookies()
-        list.forEach {
-            if (it.domain == Cookie.domain) {
-                deleteCookie(it)
-            }
-        }
-        CookieDatabase.getInstance(this).cookiedao().insertCookie(Cookie)
+    private fun deleteBookMark(bookmarkdata: EntityBookMark) {
+        MyDatabase.getInstance(this).bookMarkDao().deleteBookMark(bookmarkdata)
     }
 
     fun getCookies(): List<Cookie_Entity> {
@@ -399,7 +368,7 @@ class WebViewActivity : AppCompatActivity() {
     }
 
 
-    fun starCheck_LOCAL(list: List<h_b_Entity>) {
+    fun starCheck_LOCAL(list: List<EntityBookMark>) {
         val currenturl = adapter.tabs[viewPager!!.currentItem].getUrl()
         var new = true
         for (i in list) {
@@ -422,13 +391,13 @@ class WebViewActivity : AppCompatActivity() {
     fun getBackForwardList() {
         val currentList: WebBackForwardList =
             adapter.tabs[viewPager!!.currentItem].copyBackForwardList()
+        adapter.tabs[viewPager!!.currentItem].deleteBackForwardList()
         val currentSize = currentList.size
         for (i in 0 until currentSize) {
             val item = currentList.getItemAtIndex(i)
-            val sdf: SimpleDateFormat
-            sdf = SimpleDateFormat(getString(R.string.dateformat))
+            val sdf: SimpleDateFormat = SimpleDateFormat(getString(R.string.dateformat))
             val currentDate = sdf.format(Date())
-            val tmp = h_b_Entity(item.url, currentDate, item.title)
+            val tmp = HistoryEntity(item.url, currentDate, item.title)
             insertHistory(tmp)
         }
     }
@@ -462,15 +431,12 @@ class WebViewActivity : AppCompatActivity() {
 
     fun setCurrentUrl(string: String) {
         adapter.tabs[viewPager!!.currentItem].setUrl(string)
-        // adapter.tabs[viewPager!!.currentItem].reload()
         toolbar.url.setText(string)
-        //Log.e("currentURL", string)
     }
 
     fun refreshTabs() {
-
         (0 until tabs.size - 1).forEach {
-            tabLayout!!.getTabAt(it)?.setText("init")
+            tabLayout!!.getTabAt(it)?.text = "init"
         }
     }
 
@@ -500,7 +466,6 @@ class WebViewActivity : AppCompatActivity() {
             }
         }
     }
-
 
     fun addCookie(uri: URL) {
         val tmp = Cookie_Entity(uri.host)

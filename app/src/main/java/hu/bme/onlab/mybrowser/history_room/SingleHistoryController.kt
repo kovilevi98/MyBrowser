@@ -2,21 +2,19 @@ package hu.bme.onlab.mybrowser.history_room
 
 import android.content.Context
 import com.airbnb.epoxy.AsyncEpoxyController
-import hu.bme.onlab.mybrowser.bookmarks__room.h_b_Entity
+import hu.bme.onlab.mybrowser.MyDatabase
 
 class SingleHistoryController(val context: Context, val activity: HistoryActivity) :
     AsyncEpoxyController() {
 
-    var historyItems: MutableList<h_b_Entity> = mutableListOf()
+    var historyItems: MutableList<HistoryEntity> = mutableListOf()
         set(value) {
             field = value
             requestModelBuild()
         }
 
-    private var db: HistoryDatabase
-
+    private var db: MyDatabase = MyDatabase.getInstanceHistory(context)
     init {
-        db = HistoryDatabase.getInstance(context)
         historyItems = db.historyDao().getHistory().toMutableList()
     }
 
@@ -31,6 +29,6 @@ class SingleHistoryController(val context: Context, val activity: HistoryActivit
     }
 
     object ticked_list {
-        var ticked: MutableList<h_b_Entity> = ArrayList()
+        var ticked: MutableList<HistoryEntity> = ArrayList()
     }
 }

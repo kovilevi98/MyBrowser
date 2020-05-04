@@ -9,6 +9,7 @@ import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
+import hu.bme.onlab.mybrowser.MyDatabase
 import hu.bme.onlab.mybrowser.R
 
 
@@ -17,11 +18,11 @@ abstract class SingleBookMarkModel(val context: Context, val activity: BookMarkA
     EpoxyModelWithHolder<SingleBookMarkModel.Holder>() {
 
     @EpoxyAttribute
-    lateinit var bookmark: h_b_Entity
+    lateinit var bookmark: EntityBookMark
 
     override fun bind(holder: Holder) {
         super.bind(Holder())
-        val controller = SingleBookMakrController.ticked_list
+        val controller = SingleBookMakrController.TickedList
         holder.checked.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 with(bookmark) {
@@ -40,9 +41,9 @@ abstract class SingleBookMarkModel(val context: Context, val activity: BookMarkA
             }
             val dbThread = Thread {
                 val bookmarkdata =
-                    BookMarkDatabase.getInstance(context).bookMarkDao().getSpecificGrades(new_url)
+                    MyDatabase.getInstance(context).bookMarkDao().getSpecificGrades(new_url)
                 bookmarkdata.forEach {
-                    BookMarkDatabase.getInstance(context).bookMarkDao().deleteBookMark(it)
+                    MyDatabase.getInstance(context).bookMarkDao().deleteBookMark(it)
                 }
             }
             dbThread.start()
